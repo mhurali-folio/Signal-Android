@@ -231,8 +231,19 @@
         </intent-filter>
     </activity>
 
+    <activity android:name=".onboarding.OnBoardingActivity"
+        android:launchMode="singleTask"
+        android:theme="@style/Theme.Signal.DayNight.NoActionBar"/>
+
+    <activity android:name=".onboarding.OnBoardingMainMenuActivity"
+        android:launchMode="singleTask"
+        android:theme="@style/Theme.Signal.DayNight.NoActionBar"/>
+
+    <activity android:name=".SplashActivity"
+              android:theme="@style/SplashTheme"/>
+
     <activity-alias android:name=".RoutingActivity"
-                    android:targetActivity=".MainActivity"
+                    android:targetActivity=".SplashActivity"
                     android:exported="true">
 
         <intent-filter>

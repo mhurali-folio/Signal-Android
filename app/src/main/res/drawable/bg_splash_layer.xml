@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <bitmap android:src="@drawable/bg_splash" />
+    </item>
+
+    <item android:top="-175dp">
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/ic_peepline_with_tagline" />
+    </item>
+
+    <item android:top="75dp">
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/ic_splash_text" />
+    </item>
+
+</layer-list>

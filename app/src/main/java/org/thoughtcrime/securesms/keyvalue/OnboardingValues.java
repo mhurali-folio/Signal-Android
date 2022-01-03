@@ -4,7 +4,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
 import org.thoughtcrime.securesms.util.LocaleFeatureFlags;
 import org.thoughtcrime.securesms.util.Util;
 
@@ -18,6 +17,7 @@ public final class OnboardingValues extends SignalStoreValues {
   private static final String SHOW_SMS            = "onboarding.sms";
   private static final String SHOW_APPEARANCE     = "onboarding.appearance";
   private static final String SHOW_ADD_PHOTO      = "onboarding.add_photo";
+  private static final String SHOW_ON_BOARDING_FLOW = "onboarding.flow";
 
   OnboardingValues(@NonNull KeyValueStore store) {
     super(store);
@@ -30,6 +30,7 @@ public final class OnboardingValues extends SignalStoreValues {
     putBoolean(SHOW_SMS, true);
     putBoolean(SHOW_APPEARANCE, true);
     putBoolean(SHOW_ADD_PHOTO, true);
+    putBoolean(SHOW_ON_BOARDING_FLOW, true);
   }
 
   @Override
@@ -43,6 +44,7 @@ public final class OnboardingValues extends SignalStoreValues {
     setShowSms(false);
     setShowAppearance(false);
     setShowAddPhoto(false);
+    setShowOnBoardingFlow(false);
   }
 
   public boolean hasOnboarding(@NonNull Context context) {
@@ -91,5 +93,13 @@ public final class OnboardingValues extends SignalStoreValues {
 
   public boolean shouldShowAddPhoto(){
     return getBoolean(SHOW_ADD_PHOTO, false);
+  }
+
+  public void setShowOnBoardingFlow(boolean value) {
+    putBoolean(SHOW_ON_BOARDING_FLOW, value);
+  }
+
+  public boolean shouldShowOnBoardingFlow(){
+    return getBoolean(SHOW_ON_BOARDING_FLOW, false);
   }
 }

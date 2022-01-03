@@ -323,7 +323,7 @@ android {
         staging {
             dimension 'environment'
 
-            applicationIdSuffix ".staging"
+            applicationIdSuffix ".peepline"
 
             buildConfigField "String", "SIGNAL_URL", "\"https://chat.staging.signal.org\""
             buildConfigField "String", "STORAGE_URL", "\"https://storage-staging.signal.org\""
@@ -513,6 +513,7 @@ dependencies {
         exclude group: 'org.freemarker'
     }
     implementation libs.dnsjava
+    implementation libs.app.intro
 
     flipperImplementation libs.facebook.flipper
     flipperImplementation libs.facebook.soloader

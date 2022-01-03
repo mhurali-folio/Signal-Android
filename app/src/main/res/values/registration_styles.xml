@@ -5,7 +5,7 @@
         <item name="android:textSize">@dimen/registration_body_text</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:elevation" tools:ignore="NewApi">4dp</item>
-        <item name="cpb_cornerRadius">4dp</item>
+        <item name="cpb_cornerRadius">20dp</item>
         <item name="cpb_colorIndicator">@color/white</item>
         <item name="cpb_colorProgress">@color/core_ultramarine</item>
         <item name="cpb_selectorIdle">@drawable/progress_button_state</item>

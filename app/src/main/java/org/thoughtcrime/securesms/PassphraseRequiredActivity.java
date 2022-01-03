@@ -24,6 +24,7 @@ import org.thoughtcrime.securesms.keyvalue.SignalStore;
 import org.thoughtcrime.securesms.lock.v2.CreateKbsPinActivity;
 import org.thoughtcrime.securesms.migrations.ApplicationMigrationActivity;
 import org.thoughtcrime.securesms.migrations.ApplicationMigrations;
+import org.thoughtcrime.securesms.onboarding.OnBoardingActivity;
 import org.thoughtcrime.securesms.pin.PinRestoreActivity;
 import org.thoughtcrime.securesms.profiles.edit.EditProfileActivity;
 import org.thoughtcrime.securesms.push.SignalServiceNetworkAccess;
@@ -52,6 +53,7 @@ public abstract class PassphraseRequiredActivity extends BaseActivity implements
   private static final int STATE_TRANSFER_ONGOING    = 8;
   private static final int STATE_TRANSFER_LOCKED     = 9;
   private static final int STATE_CHANGE_NUMBER_LOCK  = 10;
+  private static final int STATE_SHOW_ON_BOARDING     = 11;
 
   private SignalServiceNetworkAccess networkAccess;
   private BroadcastReceiver          clearKeyReceiver;
@@ -156,6 +158,7 @@ public abstract class PassphraseRequiredActivity extends BaseActivity implements
       case STATE_TRANSFER_ONGOING:    return getOldDeviceTransferIntent();
       case STATE_TRANSFER_LOCKED:     return getOldDeviceTransferLockedIntent();
       case STATE_CHANGE_NUMBER_LOCK:  return getChangeNumberLockIntent();
+      case STATE_SHOW_ON_BOARDING:    return getOnBoardingIntent();
       default:                        return null;
     }
   }
@@ -167,6 +170,8 @@ public abstract class PassphraseRequiredActivity extends BaseActivity implements
       return STATE_PROMPT_PASSPHRASE;
     } else if (ApplicationMigrations.isUpdate(this) && ApplicationMigrations.isUiBlockingMigrationRunning()) {
       return STATE_UI_BLOCKING_UPGRADE;
+    } else if (SignalStore.onboarding().shouldShowOnBoardingFlow()) {
+      return STATE_SHOW_ON_BOARDING;
     } else if (!TextSecurePreferences.hasPromptedPushRegistration(this)) {
       return STATE_WELCOME_PUSH_SCREEN;
     } else if (SignalStore.storageService().needsAccountRestore()) {
@@ -207,8 +212,10 @@ public abstract class PassphraseRequiredActivity extends BaseActivity implements
   private Intent getUiBlockingUpgradeIntent() {
     return getRoutedIntent(ApplicationMigrationActivity.class,
                            TextSecurePreferences.hasPromptedPushRegistration(this)
-                               ? getConversationListIntent()
-                               : getPushRegistrationIntent());
+                           ? getConversationListIntent()
+                           : (SignalStore.onboarding().shouldShowOnBoardingFlow()
+                              ? getOnBoardingIntent()
+                              : getPushRegistrationIntent()));
   }
 
   private Intent getPushRegistrationIntent() {
@@ -250,6 +257,10 @@ public abstract class PassphraseRequiredActivity extends BaseActivity implements
 
   private Intent getChangeNumberLockIntent() {
     return ChangeNumberLockActivity.createIntent(this);
+  }
+
+  private Intent getOnBoardingIntent() {
+    return getRoutedIntent(OnBoardingActivity.class, getIntent());
   }
 
   private Intent getRoutedIntent(Class<?> destination, @Nullable Intent nextIntent) {
