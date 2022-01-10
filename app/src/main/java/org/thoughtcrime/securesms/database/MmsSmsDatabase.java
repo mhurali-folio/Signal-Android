@@ -30,6 +30,7 @@ import net.zetetic.database.sqlcipher.SQLiteQueryBuilder;
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.MessageDatabase.SyncMessageId;
 import org.thoughtcrime.securesms.database.MessageDatabase.ThreadUpdate;
+import org.thoughtcrime.securesms.database.model.MessageDataHolder;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.notifications.v2.MessageNotifierV2;
@@ -44,6 +45,7 @@ import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -182,6 +184,52 @@ public class MmsSmsDatabase extends Database {
     }
 
     return null;
+  }
+
+  public @Nullable void getSmsMms() {
+
+    try (Cursor cursor = queryTables(PROJECTION, "", null, null)) {
+      MmsSmsDatabase.Reader reader = readerFor(cursor);
+
+      MessageRecord               messageRecord;
+      HashMap<String, ArrayList<MessageDataHolder>> allMessages = new HashMap();
+
+      while ((messageRecord = reader.getNext()) != null) {
+//        android.util.Log.d("getSmsMms", "getSmsMms: " + messageRecord.getBody()
+//                                        + "  " + messageRecord.getRecipient().getDisplayNameOrUsername(context)
+//                                        + "  " + messageRecord.getRecipient().getGroupName(context)
+//                                        + "  " + messageRecord.getRecipient().getGroupId().isPresent()
+//                                        + "  " + messageRecord.getRecipient().getGroupId().toString()
+//        );
+        Boolean isGroup = messageRecord.getRecipient().getGroupId().isPresent();
+        String _key = isGroup ? messageRecord.getRecipient().getGroupId().orNull().toString() : messageRecord.getRecipient().getId().toString();
+
+        MessageDataHolder messageDataHolder = new MessageDataHolder(messageRecord.getRecipient().getId(),
+                                                                    isGroup,
+                                                                    messageRecord.getRecipient().getGroupName(context),
+                                                                    messageRecord.getRecipient().getDisplayNameOrUsername(context),
+                                                                    messageRecord.getBody(),
+                                                                    messageRecord.getRecipient().getGroupId().orNull());
+        if(allMessages.get(_key) == null) {
+          ArrayList<MessageDataHolder> arrayList = new ArrayList();
+          arrayList.add(messageDataHolder);
+          allMessages.put(_key, arrayList);
+        } else {
+          allMessages.get(_key).add(messageDataHolder);
+          allMessages.put(_key, allMessages.get(_key));
+        }
+      }
+
+      for (String i : allMessages.keySet()) {
+        for (int j = 0; j < allMessages.get(i).size(); j++) {
+          System.out.println("key: " + i.toString() + " value: " + allMessages.get(i).get(j).userName
+                             + "  " +  allMessages.get(i).get(j).isGroup
+                             + "  " +  allMessages.get(i).get(j).groupTitle
+                             + "  " +  allMessages.get(i).get(j).messageContent);
+        }
+      }
+    }
+
   }
 
   public @NonNull List<MessageRecord> getMessagesAfterVoiceNoteInclusive(long messageId, long limit) throws NoSuchMessageException {
