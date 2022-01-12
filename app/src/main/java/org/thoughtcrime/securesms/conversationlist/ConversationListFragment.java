@@ -174,6 +174,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -1171,7 +1172,18 @@ public class ConversationListFragment extends MainFragment implements ActionMode
       HashMap<Integer, ArrayList> allMessages = new HashMap();
 
       MmsSmsDatabase mmsSmsDatabase = SignalDatabase.mmsSms();
-      mmsSmsDatabase.getSmsMms();
+//      mmsSmsDatabase.getSmsMms();
+
+      ThreadDatabase threadDatabase = SignalDatabase.threads();
+      Set<RecipientId> threadRecipients = threadDatabase.getAllThreadRecipients();
+
+      Recipient recipient;
+
+      for(RecipientId recipientId : threadRecipients){
+        recipient  = Recipient.live(recipientId).get();
+        android.util.Log.d(TAG, "onConversationClick: " + recipient.getGroupName(getContext())
+                                + recipient.getDisplayNameOrUsername(getContext()));
+      }
 
     } else {
       viewModel.toggleConversationSelected(conversation);
