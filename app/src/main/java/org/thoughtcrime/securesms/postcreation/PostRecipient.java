@@ -1,14 +1,16 @@
 package org.thoughtcrime.securesms.postcreation;
 
+import org.thoughtcrime.securesms.recipients.Recipient;
+
 public class PostRecipient {
   String title = null;
-  String name = null;
+  Recipient recipient = null;
   boolean selected = false;
 
-  public PostRecipient(String title, String name, boolean selected) {
+  public PostRecipient(String title, Recipient recipient, boolean selected) {
     super();
     this.title = title;
-    this.name = name;
+    this.recipient = recipient;
     this.selected = selected;
   }
 
@@ -17,12 +19,6 @@ public class PostRecipient {
   }
   public void setTitle(String title) {
     this.title = title;
-  }
-  public String getName() {
-    return name;
-  }
-  public void setName(String name) {
-    this.name = name;
   }
 
   public boolean isSelected() {

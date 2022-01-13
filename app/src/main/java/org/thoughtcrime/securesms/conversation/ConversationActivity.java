@@ -2960,7 +2960,9 @@ public class ConversationActivity extends PassphraseRequiredActivity
     final Context              context = getApplicationContext();
 
     final OutgoingMediaMessage outgoingMessage;
-
+    android.util.Log.d("sendMediaMessage", "sendMediaMessage:  sendPush" + sendPush
+                                          + " subscriptionId " + subscriptionId
+                                          + " expiresIn " + expiresIn);
     if (sendPush) {
       outgoingMessage = new OutgoingSecureMediaMessage(outgoingMessageCandidate);
       ApplicationDependencies.getTypingStatusSender().onTypingStopped(thread);
@@ -3006,7 +3008,9 @@ public class ConversationActivity extends PassphraseRequiredActivity
     final Context context     = getApplicationContext();
     final String  messageBody = getMessage();
     final boolean sendPush    = (isSecureText && !forceSms) || recipient.get().isAciOnly();
-
+    android.util.Log.d("sendTextMessage", "sendTextMessage:  sendPush" + sendPush
+                                          + " subscriptionId " + subscriptionId
+    + " expiresIn " + expiresIn);
     OutgoingTextMessage message;
 
     if (sendPush) {

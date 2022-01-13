@@ -1169,22 +1169,9 @@ public class ConversationListFragment extends MainFragment implements ActionMode
   @Override
   public void onConversationClick(@NonNull Conversation conversation) {
     if (actionMode == null) {
-//      handleCreateConversation(conversation.getThreadRecord().getThreadId(), conversation.getThreadRecord().getRecipient(), conversation.getThreadRecord().getDistributionType());
-      HashMap<Integer, ArrayList> allMessages = new HashMap();
-
-      MmsSmsDatabase mmsSmsDatabase = SignalDatabase.mmsSms();
+      handleCreateConversation(conversation.getThreadRecord().getThreadId(), conversation.getThreadRecord().getRecipient(), conversation.getThreadRecord().getDistributionType());
+//      MmsSmsDatabase mmsSmsDatabase = SignalDatabase.mmsSms();
 //      mmsSmsDatabase.getSmsMms();
-
-      ThreadDatabase threadDatabase = SignalDatabase.threads();
-      Set<RecipientId> threadRecipients = threadDatabase.getAllThreadRecipients();
-
-      Recipient recipient;
-
-      for(RecipientId recipientId : threadRecipients){
-        recipient  = Recipient.live(recipientId).get();
-        android.util.Log.d(TAG, "onConversationClick: " + recipient.getGroupName(getContext())
-                                + recipient.getDisplayNameOrUsername(getContext()));
-      }
 
     } else {
       viewModel.toggleConversationSelected(conversation);

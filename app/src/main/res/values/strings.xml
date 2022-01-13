@@ -3869,6 +3869,8 @@
     <string name="PostCreationActivity__new_message">New Post</string>
     <string name="PostCreationActivity__input_hint">Type a message</string>
     <string name="PostCreationActivity__list_heading">Select Your Peeps</string>
+    <string name="PostCreationActivity__enter_message_toast">Type a message</string>
+    <string name="PostCreationActivity__select_peeps_toast">Select a Peeps</string>
 
     <!-- ContactFilterView -->
     <string name="ContactFilterView__search_name_or_number">Search name or number</string>

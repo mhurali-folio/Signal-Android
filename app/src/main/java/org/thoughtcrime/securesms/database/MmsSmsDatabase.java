@@ -222,14 +222,12 @@ public class MmsSmsDatabase extends Database {
 
       for (String i : allMessages.keySet()) {
         for (int j = 0; j < allMessages.get(i).size(); j++) {
-          System.out.println("key: " + i.toString() + " value: " + allMessages.get(i).get(j).userName
-                             + "  " +  allMessages.get(i).get(j).isGroup
-                             + "  " +  allMessages.get(i).get(j).groupTitle
-                             + "  " +  allMessages.get(i).get(j).messageContent);
+          System.out.println(" name: " + allMessages.get(i).get(j).userName
+                             + "  isGroup: " +  allMessages.get(i).get(j).isGroup
+                             + "  message: " +  allMessages.get(i).get(j).messageContent);
         }
       }
     }
-
   }
 
   public @NonNull List<MessageRecord> getMessagesAfterVoiceNoteInclusive(long messageId, long limit) throws NoSuchMessageException {

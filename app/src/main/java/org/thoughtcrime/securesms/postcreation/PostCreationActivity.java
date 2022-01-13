@@ -1,22 +1,55 @@
 package org.thoughtcrime.securesms.postcreation;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.TransportOptions;
+import org.thoughtcrime.securesms.contactshare.Contact;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.ThreadDatabase;
+import org.thoughtcrime.securesms.database.model.Mention;
+import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.linkpreview.LinkPreview;
+import org.thoughtcrime.securesms.mms.OutgoingMediaMessage;
+import org.thoughtcrime.securesms.mms.OutgoingSecureMediaMessage;
+import org.thoughtcrime.securesms.mms.QuoteModel;
+import org.thoughtcrime.securesms.mms.SlideDeck;
+import org.thoughtcrime.securesms.permissions.Permissions;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
+import org.thoughtcrime.securesms.sms.MessageSender;
+import org.thoughtcrime.securesms.sms.OutgoingEncryptedMessage;
+import org.thoughtcrime.securesms.sms.OutgoingTextMessage;
+import org.thoughtcrime.securesms.util.MessageUtil;
+import org.thoughtcrime.securesms.util.concurrent.ListenableFuture;
+import org.thoughtcrime.securesms.util.concurrent.SettableFuture;
+import org.thoughtcrime.securesms.util.concurrent.SimpleTask;
+import org.whispersystems.libsignal.InvalidMessageException;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 public class PostCreationActivity extends AppCompatActivity {
   PostRecipientAdapter dataAdapter = null;
+  ArrayList<PostRecipient> postRecipients;
+  ThreadDatabase threadDatabase;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -26,19 +59,53 @@ public class PostCreationActivity extends AppCompatActivity {
     this.getSupportActionBar().setTitle(R.string.PostCreationActivity__new_message);
 
     this.setupRecipientList();
+    EditText messageBox = findViewById(R.id.message_box);
+    FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.send_message_fab);
+
+    Context context = this;
+    floatingActionButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if(messageBox.getText().toString().equals("")) {
+          Toast.makeText(context, R.string.PostCreationActivity__enter_message_toast, Toast.LENGTH_SHORT).show();
+        }
+        else if(!postRecipients.stream().anyMatch(pR -> pR.isSelected())) {
+          Toast.makeText(context, R.string.PostCreationActivity__select_peeps_toast, Toast.LENGTH_SHORT).show();
+        }
+        else {
+          for (PostRecipient postRecipient : postRecipients) {
+            SlideDeck slideDeck = new SlideDeck();
+
+            if(postRecipient.isSelected()) {
+              sendMediaMessage(postRecipient.recipient.getId(), false, messageBox.getText().toString(), slideDeck, null,
+                               Collections.emptyList(),
+                               Collections.emptyList(),
+                               Collections.emptyList(),
+                               0,
+                               false,
+                               -1,
+                               null);
+              postRecipient.setSelected(false);
+            }
+            onBackPressed();
+          }
+        }
+      }
+    });
   }
 
   private void setupRecipientList() {
-    ThreadDatabase threadDatabase   = SignalDatabase.threads();
+    threadDatabase   = SignalDatabase.threads();
     Set<RecipientId>   threadRecipients = threadDatabase.getAllThreadRecipients();
 
     Recipient                recipient;
-    ArrayList<PostRecipient> postRecipients = new ArrayList();
+    postRecipients = new ArrayList();
 
     for(RecipientId recipientId : threadRecipients){
       recipient  = Recipient.live(recipientId).get();
-      postRecipients.add(new PostRecipient(recipient.getDisplayNameOrUsername(getApplicationContext()), recipientId.toString(), false));
+      postRecipients.add(new PostRecipient(recipient.getDisplayNameOrUsername(getApplicationContext()), recipient, false));
     }
+
     dataAdapter = new PostRecipientAdapter(this,
                                            R.layout.post_recipient_holder, postRecipients);
 
@@ -56,4 +123,64 @@ public class PostCreationActivity extends AppCompatActivity {
 
     return false;
   }
+
+  private void sendMediaMessage(@NonNull RecipientId recipientId,
+                                                  final boolean forceSms,
+                                                  @NonNull String body,
+                                                  SlideDeck slideDeck,
+                                                  QuoteModel quote,
+                                                  List<Contact> contacts,
+                                                  List<LinkPreview> previews,
+                                                  List<Mention> mentions,
+                                                  final long expiresIn,
+                                                  final boolean viewOnce,
+                                                  final int subscriptionId,
+                                                  final @Nullable String metricId)
+  {
+    final boolean sendPush = true;
+    final long    thread   = threadDatabase.getThreadIdFor(recipientId);
+
+    if (sendPush) {
+      TransportOptions    transportOptions = new TransportOptions(this, false);
+      MessageUtil.SplitResult splitMessage     = MessageUtil.getSplitMessage(this, body, transportOptions.getSelectedTransport().calculateCharacters(body).maxPrimaryMessageSize);
+      body = splitMessage.getBody();
+
+      if (splitMessage.getTextSlide().isPresent()) {
+        slideDeck.addSlide(splitMessage.getTextSlide().get());
+      }
+    }
+
+    Recipient recipient = Recipient.live(recipientId).get();
+
+    OutgoingMediaMessage outgoingMessageCandidate = new OutgoingMediaMessage(Recipient.resolved(recipientId), slideDeck, body, System.currentTimeMillis(), subscriptionId,
+                                                                             expiresIn, viewOnce, recipient.isGroup() ? 1 : 2, quote, contacts, previews, mentions);
+
+    final SettableFuture<Void> future  = new SettableFuture<>();
+    final Context              context = getApplicationContext();
+
+    final OutgoingMediaMessage outgoingMessage;
+
+    if (sendPush) {
+      outgoingMessage = new OutgoingSecureMediaMessage(outgoingMessageCandidate);
+      ApplicationDependencies.getTypingStatusSender().onTypingStopped(thread);
+    } else {
+      outgoingMessage = outgoingMessageCandidate;
+    }
+
+    Permissions.with(this)
+               .request(Manifest.permission.SEND_SMS, Manifest.permission.READ_SMS)
+               .ifNecessary(!sendPush)
+               .withPermanentDenialDialog(getString(R.string.ConversationActivity_signal_needs_sms_permission_in_order_to_send_an_sms))
+               .onAllGranted(() -> {
+                 SimpleTask.run(() -> {
+                   return MessageSender.send(context, outgoingMessage, thread, forceSms, metricId, null);
+                 }, result -> {
+                   future.set(null);
+                 });
+               })
+               .onAnyDenied(() -> future.set(null))
+               .execute();
+  }
+
+
 }
