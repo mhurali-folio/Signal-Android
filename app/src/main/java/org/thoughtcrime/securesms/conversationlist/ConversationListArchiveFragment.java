@@ -49,6 +49,7 @@ public class ConversationListArchiveFragment extends ConversationListFragment im
   private Stub<View>                  emptyState;
   private PulsingFloatingActionButton fab;
   private PulsingFloatingActionButton cameraFab;
+  private PulsingFloatingActionButton postFab;
   private Stub<Toolbar>               toolbar;
 
   public static ConversationListArchiveFragment newInstance() {
@@ -70,6 +71,7 @@ public class ConversationListArchiveFragment extends ConversationListFragment im
     list       = view.findViewById(R.id.list);
     fab        = view.findViewById(R.id.fab);
     cameraFab  = view.findViewById(R.id.camera_fab);
+    postFab  = view.findViewById(R.id.post_fab);
     emptyState = new Stub<>(view.findViewById(R.id.empty_state));
 
     ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -78,6 +80,7 @@ public class ConversationListArchiveFragment extends ConversationListFragment im
 
     fab.hide();
     cameraFab.hide();
+    postFab.hide();
   }
 
   @Override

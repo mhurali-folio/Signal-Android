@@ -3865,6 +3865,11 @@
     <!-- NewConversationActivity -->
     <string name="NewConversationActivity__new_message">New message</string>
 
+    <!-- PostCreationActivity -->
+    <string name="PostCreationActivity__new_message">New Post</string>
+    <string name="PostCreationActivity__input_hint">Type a message</string>
+    <string name="PostCreationActivity__list_heading">Select Your Peeps</string>
+
     <!-- ContactFilterView -->
     <string name="ContactFilterView__search_name_or_number">Search name or number</string>
 

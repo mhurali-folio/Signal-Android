@@ -83,6 +83,7 @@ import org.thoughtcrime.securesms.MainFragment;
 import org.thoughtcrime.securesms.MainNavigator;
 import org.thoughtcrime.securesms.MuteDialog;
 import org.thoughtcrime.securesms.NewConversationActivity;
+import org.thoughtcrime.securesms.postcreation.PostCreationActivity;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.badges.BadgeImageView;
 import org.thoughtcrime.securesms.badges.models.Badge;
@@ -110,10 +111,7 @@ import org.thoughtcrime.securesms.components.voice.VoiceNotePlayerView;
 import org.thoughtcrime.securesms.conversation.ConversationFragment;
 import org.thoughtcrime.securesms.conversationlist.model.Conversation;
 import org.thoughtcrime.securesms.conversationlist.model.UnreadPayments;
-import org.thoughtcrime.securesms.database.GroupDatabase;
-import org.thoughtcrime.securesms.database.MessageDatabase;
 import org.thoughtcrime.securesms.database.MessageDatabase.MarkedMessageInfo;
-import org.thoughtcrime.securesms.database.MmsDatabase;
 import org.thoughtcrime.securesms.database.MmsSmsDatabase;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.ThreadDatabase;
@@ -174,7 +172,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -209,6 +206,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
   private TextView                       searchEmptyState;
   private PulsingFloatingActionButton    fab;
   private PulsingFloatingActionButton    cameraFab;
+  private PulsingFloatingActionButton    postFab;
   private Stub<SearchToolbar>            searchToolbar;
   private ImageView                      notificationProfileStatus;
   private ImageView                      proxyStatus;
@@ -267,6 +265,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
     list                      = view.findViewById(R.id.list);
     fab                       = view.findViewById(R.id.fab);
     cameraFab                 = view.findViewById(R.id.camera_fab);
+    postFab                 = view.findViewById(R.id.post_fab);
     searchEmptyState          = view.findViewById(R.id.search_no_results);
     searchAction              = view.findViewById(R.id.search_action);
     toolbarShadow             = view.findViewById(R.id.conversation_list_toolbar_shadow);
@@ -290,6 +289,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
 
     fab.show();
     cameraFab.show();
+    postFab.show();
 
     archiveDecoration = new ConversationListArchiveItemDecoration(new ColorDrawable(getResources().getColor(R.color.conversation_list_archive_background_end)));
     itemAnimator      = new ConversationListItemAnimator();
@@ -315,6 +315,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
                  .onAnyDenied(() -> Toast.makeText(requireContext(), R.string.ConversationActivity_signal_needs_camera_permissions_to_take_photos_or_video, Toast.LENGTH_LONG).show())
                  .execute();
     });
+    postFab.setOnClickListener(v -> startActivity(new Intent(getActivity(), PostCreationActivity.class)));
 
     initializeViewModel();
     initializeListAdapters();
