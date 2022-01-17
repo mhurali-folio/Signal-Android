@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -16,18 +17,23 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.thoughtcrime.securesms.InviteActivity;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.TransportOptions;
 import org.thoughtcrime.securesms.contactshare.Contact;
+import org.thoughtcrime.securesms.database.GroupDatabase;
+import org.thoughtcrime.securesms.database.MmsSmsDatabase;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.ThreadDatabase;
 import org.thoughtcrime.securesms.database.model.Mention;
+import org.thoughtcrime.securesms.database.model.RecipientModel;
 import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.linkpreview.LinkPreview;
 import org.thoughtcrime.securesms.mms.OutgoingMediaMessage;
 import org.thoughtcrime.securesms.mms.OutgoingSecureMediaMessage;
 import org.thoughtcrime.securesms.mms.QuoteModel;
 import org.thoughtcrime.securesms.mms.SlideDeck;
+import org.thoughtcrime.securesms.newsfeed.NewsFeedActivity;
 import org.thoughtcrime.securesms.permissions.Permissions;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
@@ -67,6 +73,11 @@ public class PostCreationActivity extends AppCompatActivity {
       @Override
       public void onClick(View v) {
         if(messageBox.getText().toString().equals("")) {
+
+
+//          GroupDatabase groupDatabase = SignalDatabase.groups();
+//          groupDatabase.getAllGroups();
+
           Toast.makeText(context, R.string.PostCreationActivity__enter_message_toast, Toast.LENGTH_SHORT).show();
         }
         else if(!postRecipients.stream().anyMatch(pR -> pR.isSelected())) {
@@ -85,10 +96,12 @@ public class PostCreationActivity extends AppCompatActivity {
                                false,
                                -1,
                                null);
-              postRecipient.setSelected(false);
             }
-            onBackPressed();
           }
+          postRecipients = new ArrayList<>();
+          dataAdapter.notifyDataSetChanged();
+          messageBox.setText("");
+          startActivity(new Intent(context, NewsFeedActivity.class));
         }
       }
     });
@@ -96,13 +109,15 @@ public class PostCreationActivity extends AppCompatActivity {
 
   private void setupRecipientList() {
     threadDatabase   = SignalDatabase.threads();
-    Set<RecipientId>   threadRecipients = threadDatabase.getAllThreadRecipients();
+    Set<RecipientModel> threadRecipients = threadDatabase.getAllThreadRecipientsData();
 
     Recipient                recipient;
     postRecipients = new ArrayList();
 
-    for(RecipientId recipientId : threadRecipients){
-      recipient  = Recipient.live(recipientId).get();
+    for(RecipientModel recipientModel : threadRecipients){
+      recipient  = Recipient.live(recipientModel.recipientId).get();
+      MmsSmsDatabase mmsSmsDatabase = SignalDatabase.mmsSms();
+      mmsSmsDatabase.getSmsMms(recipientModel.threadId, recipientModel.recipientId);
       postRecipients.add(new PostRecipient(recipient.getDisplayNameOrUsername(getApplicationContext()), recipient, false));
     }
 

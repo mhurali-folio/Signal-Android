@@ -1170,9 +1170,6 @@ public class ConversationListFragment extends MainFragment implements ActionMode
   public void onConversationClick(@NonNull Conversation conversation) {
     if (actionMode == null) {
       handleCreateConversation(conversation.getThreadRecord().getThreadId(), conversation.getThreadRecord().getRecipient(), conversation.getThreadRecord().getDistributionType());
-//      MmsSmsDatabase mmsSmsDatabase = SignalDatabase.mmsSms();
-//      mmsSmsDatabase.getSmsMms();
-
     } else {
       viewModel.toggleConversationSelected(conversation);
 

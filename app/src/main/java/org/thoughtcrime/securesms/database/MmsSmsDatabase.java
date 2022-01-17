@@ -169,7 +169,7 @@ public class MmsSmsDatabase extends Database {
   public @Nullable MessageRecord getMessageFor(long timestamp, RecipientId authorId) {
     Recipient author = Recipient.resolved(authorId);
 
-    try (Cursor cursor = queryTables(PROJECTION, MmsSmsColumns.NORMALIZED_DATE_SENT + " = " + timestamp, null, null)) {
+    try (Cursor cursor = queryTables(PROJECTION, "", null, null)) {
       MmsSmsDatabase.Reader reader = readerFor(cursor);
 
       MessageRecord messageRecord;
@@ -186,48 +186,64 @@ public class MmsSmsDatabase extends Database {
     return null;
   }
 
-  public @Nullable void getSmsMms() {
+  public @Nullable void getSmsMms(String threadId, RecipientId threadRecipientId) {
+    android.util.Log.d("getSmsMms", "getSmsMms: wowowoow " + threadId);
+    SQLiteDatabase db    = databaseHelper.getSignalReadableDatabase();
+    Cursor  cursor = db.rawQuery("select thread_id, address, body, receipt_timestamp from sms WHERE thread_id = ? UNION select thread_id, address, body, receipt_timestamp from mms WHERE thread_id = ? ORDER BY receipt_timestamp DESC", new String[]{ threadId, threadId });
 
-    try (Cursor cursor = queryTables(PROJECTION, "", null, null)) {
-      MmsSmsDatabase.Reader reader = readerFor(cursor);
+    if (cursor.moveToFirst()) {
+      while (!cursor.isAfterLast()) {
+        android.util.Log.d("getAllGroups", "getAllGroups:  "
+                                           + cursor.getColumnName(0) + "  " + cursor.getString(0)
+                                           + cursor.getColumnName(1) +  "  " + cursor.getString(1)
+                                           + cursor.getColumnName(2) + "  " + cursor.getString(2)
+                           + " threadId " + threadId
+        );
+        cursor.moveToNext();
+      }
+    }
 
-      MessageRecord               messageRecord;
-      HashMap<String, ArrayList<MessageDataHolder>> allMessages = new HashMap();
-
-      while ((messageRecord = reader.getNext()) != null) {
+//    try (Cursor cursor = queryTables(PROJECTION, "", null, null)) {
+//      MmsSmsDatabase.Reader reader = readerFor(cursor);
+//
+//      MessageRecord               messageRecord;
+//      HashMap<String, ArrayList<MessageDataHolder>> allMessages = new HashMap();
+//
+//      while ((messageRecord = reader.getNext()) != null) {
 //        android.util.Log.d("getSmsMms", "getSmsMms: " + messageRecord.getBody()
 //                                        + "  " + messageRecord.getRecipient().getDisplayNameOrUsername(context)
 //                                        + "  " + messageRecord.getRecipient().getGroupName(context)
-//                                        + "  " + messageRecord.getRecipient().getGroupId().isPresent()
-//                                        + "  " + messageRecord.getRecipient().getGroupId().toString()
+//                                        + "  isGroup " + messageRecord.getRecipient().getGroupId().isPresent()
 //        );
-        Boolean isGroup = messageRecord.getRecipient().getGroupId().isPresent();
-        String _key = isGroup ? messageRecord.getRecipient().getGroupId().orNull().toString() : messageRecord.getRecipient().getId().toString();
-
-        MessageDataHolder messageDataHolder = new MessageDataHolder(messageRecord.getRecipient().getId(),
-                                                                    isGroup,
-                                                                    messageRecord.getRecipient().getGroupName(context),
-                                                                    messageRecord.getRecipient().getDisplayNameOrUsername(context),
-                                                                    messageRecord.getBody(),
-                                                                    messageRecord.getRecipient().getGroupId().orNull());
-        if(allMessages.get(_key) == null) {
-          ArrayList<MessageDataHolder> arrayList = new ArrayList();
-          arrayList.add(messageDataHolder);
-          allMessages.put(_key, arrayList);
-        } else {
-          allMessages.get(_key).add(messageDataHolder);
-          allMessages.put(_key, allMessages.get(_key));
-        }
-      }
-
-      for (String i : allMessages.keySet()) {
-        for (int j = 0; j < allMessages.get(i).size(); j++) {
-          System.out.println(" name: " + allMessages.get(i).get(j).userName
-                             + "  isGroup: " +  allMessages.get(i).get(j).isGroup
-                             + "  message: " +  allMessages.get(i).get(j).messageContent);
-        }
-      }
-    }
+//
+//        Boolean isGroup = messageRecord.getRecipient().getGroupId().isPresent();
+//        String _key = isGroup ? messageRecord.getRecipient().getGroupId().orNull().toString() : messageRecord.getRecipient().getId().toString();
+//
+//        MessageDataHolder messageDataHolder = new MessageDataHolder(messageRecord.getRecipient().getId(),
+//                                                                    isGroup,
+//                                                                    messageRecord.getRecipient().getGroupName(context),
+//                                                                    messageRecord.getRecipient().getDisplayNameOrUsername(context),
+//                                                                    messageRecord.getBody(),
+//                                                                    messageRecord.getRecipient().getGroupId().orNull());
+//        if(allMessages.get(_key) == null) {
+//          ArrayList<MessageDataHolder> arrayList = new ArrayList();
+//          arrayList.add(messageDataHolder);
+//          allMessages.put(_key, arrayList);
+//        } else {
+//          allMessages.get(_key).add(messageDataHolder);
+//          allMessages.put(_key, allMessages.get(_key));
+//        }
+//      }
+//
+////      for (String i : allMessages.keySet()) {
+////        for (int j = 0; j < allMessages.get(i).size(); j++) {
+////          System.out.println(" name: " + allMessages.get(i).get(j).userName
+////                             + "  isGroup: " +  allMessages.get(i).get(j).isGroup
+////                             + "  message: " +  allMessages.get(i).get(j).messageContent);
+////        }
+////      }
+////      return allMessages;
+//    }
   }
 
   public @NonNull List<MessageRecord> getMessagesAfterVoiceNoteInclusive(long messageId, long limit) throws NoSuchMessageException {

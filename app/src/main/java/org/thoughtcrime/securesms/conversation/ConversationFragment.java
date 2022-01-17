@@ -322,6 +322,14 @@ public class ConversationFragment extends LoggingFragment implements Multiselect
     conversationViewModel.getMessages().observe(getViewLifecycleOwner(), messages -> {
       ConversationAdapter adapter = getListAdapter();
       if (adapter != null) {
+        for (ConversationMessage _message: messages) {
+          android.util.Log.d(TAG, "ConversationViewModel: " + _message.getMessageRecord().getRecipient().isGroup()
+                                  + "   " +  _message.getMessageRecord().getRecipient().getDisplayNameOrUsername(getContext())
+                                  + "   " +  _message.getMessageRecord().getRecipient().getGroupName(getContext())
+                                  + "   " +  _message.getDisplayBody(getContext())
+                                  + "   " +  recipient.getLiveData().getValue().getGroupName(getContext())
+          );
+        }
         getListAdapter().submitList(messages, () -> {
           list.post(() -> conversationViewModel.onMessagesCommitted(messages));
         });

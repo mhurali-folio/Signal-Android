@@ -295,7 +295,6 @@ public final class ConversationItem extends RelativeLayout implements BindableCo
     if (this.conversationRecipient != null) this.conversationRecipient.removeForeverObserver(this);
 
     lastYDownRelativeToThis = 0;
-
     conversationRecipient = conversationRecipient.resolve();
 
     this.conversationMessage    = conversationMessage;

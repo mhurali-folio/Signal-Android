@@ -3872,6 +3872,9 @@
     <string name="PostCreationActivity__enter_message_toast">Type a message</string>
     <string name="PostCreationActivity__select_peeps_toast">Select a Peeps</string>
 
+    <!-- NewsFeedActivity -->
+    <string name="NewsFeedActivity__heading">Peeps Feed</string>
+
     <!-- ContactFilterView -->
     <string name="ContactFilterView__search_name_or_number">Search name or number</string>
 

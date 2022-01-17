@@ -105,6 +105,10 @@
             android:name=".postcreation.PostCreationActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".newsfeed.NewsFeedActivity"
+            android:exported="false" />
+
         <meta-data
             android:name="com.google.android.gms.wallet.api.enabled"
             android:value="true" />

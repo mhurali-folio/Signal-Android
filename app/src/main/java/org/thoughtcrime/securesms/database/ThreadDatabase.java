@@ -38,6 +38,7 @@ import org.thoughtcrime.securesms.database.MessageDatabase.MarkedMessageInfo;
 import org.thoughtcrime.securesms.database.model.MediaMmsMessageRecord;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
 import org.thoughtcrime.securesms.database.model.MmsMessageRecord;
+import org.thoughtcrime.securesms.database.model.RecipientModel;
 import org.thoughtcrime.securesms.database.model.RecipientRecord;
 import org.thoughtcrime.securesms.database.model.ThreadRecord;
 import org.thoughtcrime.securesms.groups.BadGroupIdException;
@@ -1326,6 +1327,19 @@ public class ThreadDatabase extends Database {
     try (Cursor cursor = db.query(TABLE_NAME, new String[] { RECIPIENT_ID }, null, null, null, null, null)) {
       while (cursor.moveToNext()) {
         ids.add(RecipientId.from(CursorUtil.requireString(cursor, RECIPIENT_ID)));
+      }
+    }
+
+    return ids;
+  }
+
+  public @NonNull Set<RecipientModel> getAllThreadRecipientsData() {
+    SQLiteDatabase   db  = databaseHelper.getSignalReadableDatabase();
+    Set<RecipientModel> ids = new HashSet<>();
+
+    try (Cursor cursor = db.query(TABLE_NAME, new String[] { RECIPIENT_ID, ID }, null, null, null, null, null)) {
+      while (cursor.moveToNext()) {
+        ids.add(new RecipientModel(RecipientId.from(CursorUtil.requireString(cursor, RECIPIENT_ID)), CursorUtil.requireString(cursor, ID)));
       }
     }
 

@@ -426,6 +426,21 @@ private static final String[] GROUP_PROJECTION = {
     return 0;
   }
 
+  public void getAllGroups() {
+    SQLiteDatabase db    = databaseHelper.getSignalReadableDatabase();
+
+    Cursor  cursor = db.rawQuery("select * from " + TABLE_NAME,null);
+    if (cursor.moveToFirst()) {
+      while (!cursor.isAfterLast()) {
+//        android.util.Log.d("getAllGroups", "getAllGroups:  " + cursor.getString(1)
+//                                + "  " + cursor.getString(2)
+//                                + "  " + cursor.getString(3)
+//                                + "  " + cursor.getString(4));
+        cursor.moveToNext();
+      }
+    }
+  }
+
   @WorkerThread
   public @NonNull List<Recipient> getGroupMembers(@NonNull GroupId groupId, @NonNull MemberSet memberSet) {
     if (groupId.isV2()) {
