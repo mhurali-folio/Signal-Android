@@ -6,13 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import org.signal.storageservice.protos.groups.Group;
 import org.thoughtcrime.securesms.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NewsFeedAdapter extends ArrayAdapter<FeedItem> {
   private ArrayList<FeedItem> recipientArrayList;
@@ -26,41 +29,37 @@ public class NewsFeedAdapter extends ArrayAdapter<FeedItem> {
   }
 
   private class ViewHolder {
-    TextView title;
-    CheckBox name;
+    TextView groupTitle;
+    ListView    messageList;
   }
 
   @Override
   public View getView(int position, View convertView, ViewGroup parent) {
     ViewHolder holder = null;
+    FeedItemListAdapter     dataAdapter = null;
 
     if (convertView == null) {
       LayoutInflater vi = (LayoutInflater)this.ctx.getSystemService(
           Context.LAYOUT_INFLATER_SERVICE);
-      convertView = vi.inflate(R.layout.post_recipient_holder, null);
+      convertView = vi.inflate(R.layout.news_feed_holder, null);
 
       holder = new ViewHolder();
-      holder.title = (TextView) convertView.findViewById(R.id.code);
-      holder.name = (CheckBox) convertView.findViewById(R.id.checkBox1);
+      holder.groupTitle = (TextView) convertView.findViewById(R.id.groupTitle);
+      holder.messageList = (ListView) convertView.findViewById(R.id.feed_item_list);
       convertView.setTag(holder);
-
-      holder.name.setOnClickListener( new View.OnClickListener() {
-        public void onClick(View v) {
-          CheckBox cb       = (CheckBox) v ;
-          FeedItem feedItem = (FeedItem) cb.getTag();
-          feedItem.setSelected(cb.isChecked());
-        }
-      });
     }
     else {
       holder = (ViewHolder) convertView.getTag();
     }
 
-    FeedItem recipient = recipientArrayList.get(position);
-    holder.title.setText(recipient.getTitle());
-    holder.name.setText("");
-    holder.name.setChecked(recipient.isSelected());
-    holder.name.setTag(recipient);
+    FeedItem feedItem = recipientArrayList.get(position);
+    holder.groupTitle.setText(feedItem.recipient.isGroup()
+                              ? "Group: " + feedItem.recipient.getGroupName(ctx)
+                              : feedItem.recipient.getDisplayNameOrUsername(ctx));
+    dataAdapter = new FeedItemListAdapter(ctx,
+                                          R.layout.news_feed_holder, feedItem.feeds);
+
+    holder.messageList.setAdapter(dataAdapter);
 
     return convertView;
   }

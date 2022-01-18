@@ -73,11 +73,7 @@ public class PostCreationActivity extends AppCompatActivity {
       @Override
       public void onClick(View v) {
         if(messageBox.getText().toString().equals("")) {
-
-
-//          GroupDatabase groupDatabase = SignalDatabase.groups();
-//          groupDatabase.getAllGroups();
-
+          startActivity(new Intent(context, NewsFeedActivity.class));
           Toast.makeText(context, R.string.PostCreationActivity__enter_message_toast, Toast.LENGTH_SHORT).show();
         }
         else if(!postRecipients.stream().anyMatch(pR -> pR.isSelected())) {
@@ -116,8 +112,6 @@ public class PostCreationActivity extends AppCompatActivity {
 
     for(RecipientModel recipientModel : threadRecipients){
       recipient  = Recipient.live(recipientModel.recipientId).get();
-      MmsSmsDatabase mmsSmsDatabase = SignalDatabase.mmsSms();
-      mmsSmsDatabase.getSmsMms(recipientModel.threadId, recipientModel.recipientId);
       postRecipients.add(new PostRecipient(recipient.getDisplayNameOrUsername(getApplicationContext()), recipient, false));
     }
 

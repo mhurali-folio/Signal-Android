@@ -186,64 +186,46 @@ public class MmsSmsDatabase extends Database {
     return null;
   }
 
-  public @Nullable void getSmsMms(String threadId, RecipientId threadRecipientId) {
-    android.util.Log.d("getSmsMms", "getSmsMms: wowowoow " + threadId);
+  public @Nullable ArrayList<MessageDataHolder> getSmsMms(String threadId, RecipientId threadRecipientId) {
     SQLiteDatabase db    = databaseHelper.getSignalReadableDatabase();
-    Cursor  cursor = db.rawQuery("select thread_id, address, body, receipt_timestamp from sms WHERE thread_id = ? UNION select thread_id, address, body, receipt_timestamp from mms WHERE thread_id = ? ORDER BY receipt_timestamp DESC", new String[]{ threadId, threadId });
+    Cursor  cursor = db.rawQuery("select thread_id, address, body, receipt_timestamp, type from sms WHERE thread_id = ? UNION select thread_id, address, body, receipt_timestamp, msg_box as type from mms WHERE thread_id = ? ORDER BY receipt_timestamp DESC", new String[]{ threadId, threadId });
+    Recipient threadRecipient = Recipient.live(threadRecipientId).get();
+    ArrayList<MessageDataHolder> allMessages = new ArrayList();
 
     if (cursor.moveToFirst()) {
       while (!cursor.isAfterLast()) {
-        android.util.Log.d("getAllGroups", "getAllGroups:  "
-                                           + cursor.getColumnName(0) + "  " + cursor.getString(0)
-                                           + cursor.getColumnName(1) +  "  " + cursor.getString(1)
-                                           + cursor.getColumnName(2) + "  " + cursor.getString(2)
-                           + " threadId " + threadId
+        Boolean isGroup = threadRecipient.isGroup();
+
+        Recipient messageSender = Recipient.live(RecipientId.from(cursor.getString(1))).get();
+
+        android.util.Log.d("getSmsMms", "getSmsMms: type " + cursor.getLong(4)
+                                        + " message " + cursor.getString(2)
+                                        + " username " + messageSender.getDisplayNameOrUsername(context)
+                                        + " group " + threadRecipient.getGroupName(context)
+                                        + " isoutgoing message " + MmsSmsColumns.Types.isOutgoingMessageType(cursor.getLong(4))
         );
+
+        MessageDataHolder messageDataHolder = new MessageDataHolder(messageSender.getId(),
+                                                                    isGroup,
+                                                                    threadRecipient.getGroupName(context),
+                                                                    messageSender.getDisplayNameOrUsername(context),
+                                                                    cursor.getString(2),
+                                                                    threadRecipient.getGroupId().orNull(),
+                                                                    MmsSmsColumns.Types.isOutgoingMessageType(cursor.getLong(4)));
+        allMessages.add(messageDataHolder);
         cursor.moveToNext();
       }
     }
 
-//    try (Cursor cursor = queryTables(PROJECTION, "", null, null)) {
-//      MmsSmsDatabase.Reader reader = readerFor(cursor);
-//
-//      MessageRecord               messageRecord;
-//      HashMap<String, ArrayList<MessageDataHolder>> allMessages = new HashMap();
-//
-//      while ((messageRecord = reader.getNext()) != null) {
-//        android.util.Log.d("getSmsMms", "getSmsMms: " + messageRecord.getBody()
-//                                        + "  " + messageRecord.getRecipient().getDisplayNameOrUsername(context)
-//                                        + "  " + messageRecord.getRecipient().getGroupName(context)
-//                                        + "  isGroup " + messageRecord.getRecipient().getGroupId().isPresent()
-//        );
-//
-//        Boolean isGroup = messageRecord.getRecipient().getGroupId().isPresent();
-//        String _key = isGroup ? messageRecord.getRecipient().getGroupId().orNull().toString() : messageRecord.getRecipient().getId().toString();
-//
-//        MessageDataHolder messageDataHolder = new MessageDataHolder(messageRecord.getRecipient().getId(),
-//                                                                    isGroup,
-//                                                                    messageRecord.getRecipient().getGroupName(context),
-//                                                                    messageRecord.getRecipient().getDisplayNameOrUsername(context),
-//                                                                    messageRecord.getBody(),
-//                                                                    messageRecord.getRecipient().getGroupId().orNull());
-//        if(allMessages.get(_key) == null) {
-//          ArrayList<MessageDataHolder> arrayList = new ArrayList();
-//          arrayList.add(messageDataHolder);
-//          allMessages.put(_key, arrayList);
-//        } else {
-//          allMessages.get(_key).add(messageDataHolder);
-//          allMessages.put(_key, allMessages.get(_key));
-//        }
+//    for (String i : allMessages.keySet()) {
+//      for (int j = 0; j < allMessages.get(i).size(); j++) {
+//        System.out.println(" name: " + allMessages.get(i).get(j).userName
+//                           + "  isGroup: " +  allMessages.get(i).get(j).isGroup
+//                           + "  groupTitle: " +  allMessages.get(i).get(j).groupTitle
+//                           + "  message: " +  allMessages.get(i).get(j).messageContent);
 //      }
-//
-////      for (String i : allMessages.keySet()) {
-////        for (int j = 0; j < allMessages.get(i).size(); j++) {
-////          System.out.println(" name: " + allMessages.get(i).get(j).userName
-////                             + "  isGroup: " +  allMessages.get(i).get(j).isGroup
-////                             + "  message: " +  allMessages.get(i).get(j).messageContent);
-////        }
-////      }
-////      return allMessages;
 //    }
+    return allMessages;
   }
 
   public @NonNull List<MessageRecord> getMessagesAfterVoiceNoteInclusive(long messageId, long limit) throws NoSuchMessageException {

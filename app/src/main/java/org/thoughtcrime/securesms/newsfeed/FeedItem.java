@@ -1,30 +1,18 @@
 package org.thoughtcrime.securesms.newsfeed;
 
+import org.thoughtcrime.securesms.database.model.MessageDataHolder;
+import org.thoughtcrime.securesms.groups.GroupId;
 import org.thoughtcrime.securesms.recipients.Recipient;
+import org.thoughtcrime.securesms.recipients.RecipientId;
+
+import java.util.ArrayList;
 
 public class FeedItem {
-  String title = null;
   Recipient recipient = null;
-  boolean selected = false;
+  ArrayList<MessageDataHolder> feeds;
 
-  public FeedItem(String title, Recipient recipient, boolean selected) {
-    super();
-    this.title = title;
+  public FeedItem(Recipient recipient, ArrayList<MessageDataHolder> feeds) {
     this.recipient = recipient;
-    this.selected = selected;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public boolean isSelected() {
-    return selected;
-  }
-  public void setSelected(boolean selected) {
-    this.selected = selected;
+    this.feeds = feeds;
   }
 }
