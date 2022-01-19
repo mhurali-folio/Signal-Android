@@ -4,23 +4,24 @@
     android:layout_height="300dp"
     android:orientation="vertical"
     android:elevation="10dp"
-    android:background="@color/exo_white"
-    android:padding="15dp">
+    android:background="@color/green_50"
+    android:padding="15dp"
+    android:layout_marginVertical="12dp">
 
     <TextView
         android:id="@+id/groupTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-        android:textSize="16dp"
-        />
+        android:layout_centerHorizontal="true"
+        android:textSize="16dp" />
 
     <ListView
         android:layout_gravity="center"
         android:id="@+id/feed_item_list"
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:paddingTop="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/groupTitle"
         android:nestedScrollingEnabled="true"
         />
 

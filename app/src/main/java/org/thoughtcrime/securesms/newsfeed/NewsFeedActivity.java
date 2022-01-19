@@ -27,6 +27,9 @@ public class NewsFeedActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.news_feed_activity);
+    this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    this.getSupportActionBar().setTitle(R.string.NewsFeedActivity__heading);
+
     this.setupRecipientList();
   }
 
