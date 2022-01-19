@@ -188,7 +188,7 @@ public class MmsSmsDatabase extends Database {
 
   public @Nullable ArrayList<MessageDataHolder> getSmsMms(String threadId, RecipientId threadRecipientId) {
     SQLiteDatabase db    = databaseHelper.getSignalReadableDatabase();
-    Cursor  cursor = db.rawQuery("select thread_id, address, body, receipt_timestamp, type from sms WHERE thread_id = ? UNION select thread_id, address, body, receipt_timestamp, msg_box as type from mms WHERE thread_id = ? ORDER BY receipt_timestamp DESC", new String[]{ threadId, threadId });
+    Cursor  cursor = db.rawQuery("select thread_id, address, body, date, type from sms WHERE thread_id = ? UNION select thread_id, address, body, date, msg_box as type from mms WHERE thread_id = ? ORDER BY date DESC", new String[]{ threadId, threadId });
     Recipient threadRecipient = Recipient.live(threadRecipientId).get();
     ArrayList<MessageDataHolder> allMessages = new ArrayList();
 
