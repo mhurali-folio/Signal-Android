@@ -35,6 +35,7 @@ import org.thoughtcrime.securesms.mms.QuoteModel;
 import org.thoughtcrime.securesms.mms.SlideDeck;
 import org.thoughtcrime.securesms.newsfeed.NewsFeedActivity;
 import org.thoughtcrime.securesms.permissions.Permissions;
+import org.thoughtcrime.securesms.recipients.LiveRecipient;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.sms.MessageSender;
@@ -73,7 +74,6 @@ public class PostCreationActivity extends AppCompatActivity {
       @Override
       public void onClick(View v) {
         if(messageBox.getText().toString().equals("")) {
-          startActivity(new Intent(context, NewsFeedActivity.class));
           Toast.makeText(context, R.string.PostCreationActivity__enter_message_toast, Toast.LENGTH_SHORT).show();
         }
         else if(!postRecipients.stream().anyMatch(pR -> pR.isSelected())) {
@@ -84,17 +84,21 @@ public class PostCreationActivity extends AppCompatActivity {
             SlideDeck slideDeck = new SlideDeck();
 
             if(postRecipient.isSelected()) {
-              sendMediaMessage(postRecipient.recipient.getId(), false, messageBox.getText().toString(), slideDeck, null,
-                               Collections.emptyList(),
-                               Collections.emptyList(),
-                               Collections.emptyList(),
-                               0,
-                               false,
-                               -1,
-                               null);
+              if(postRecipient.recipient.isGroup()) {
+                sendMediaMessage(postRecipient.recipient.getId(), false, messageBox.getText().toString(), slideDeck, null,
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 Collections.emptyList(),
+                                 0,
+                                 false,
+                                 -1,
+                                 null);
+              } else {
+                sendTextMessage(postRecipient.recipient.getId(), false, messageBox.getText().toString(), 0, -1, null);
+              }
+              postRecipient.setSelected(false);
             }
           }
-          postRecipients = new ArrayList<>();
           dataAdapter.notifyDataSetChanged();
           messageBox.setText("");
           startActivity(new Intent(context, NewsFeedActivity.class));
@@ -191,5 +195,40 @@ public class PostCreationActivity extends AppCompatActivity {
                .execute();
   }
 
+  private void sendTextMessage(@NonNull RecipientId recipientId,
+                               final boolean forceSms,
+                               @NonNull String body,
+                               final long expiresIn,
+                               final int subscriptionId,
+                               final @Nullable String metricId)
+  {
+    final long    thread      = threadDatabase.getThreadIdFor(recipientId);
+    final Context context     = getApplicationContext();
+    final String  messageBody = body;
+    final boolean sendPush    = true;
 
+    OutgoingTextMessage message;
+
+    LiveRecipient recipient = Recipient.live(recipientId);
+
+    if (sendPush) {
+      message = new OutgoingEncryptedMessage(recipient.get(), messageBody, expiresIn);
+      ApplicationDependencies.getTypingStatusSender().onTypingStopped(thread);
+    } else {
+      message = new OutgoingTextMessage(recipient.get(), messageBody, expiresIn, subscriptionId);
+    }
+
+    Permissions.with(this)
+               .request(Manifest.permission.SEND_SMS)
+               .ifNecessary(!sendPush)
+               .withPermanentDenialDialog(getString(R.string.ConversationActivity_signal_needs_sms_permission_in_order_to_send_an_sms))
+               .onAllGranted(() -> {
+                 final long id = new SecureRandom().nextLong();
+                 SimpleTask.run(() -> {
+                   return MessageSender.send(context, message, thread, forceSms, metricId, null);
+                 },  result -> {
+                 });
+               })
+               .execute();
+  }
 }

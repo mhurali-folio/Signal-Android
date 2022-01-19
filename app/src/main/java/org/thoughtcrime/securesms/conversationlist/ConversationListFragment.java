@@ -83,6 +83,7 @@ import org.thoughtcrime.securesms.MainFragment;
 import org.thoughtcrime.securesms.MainNavigator;
 import org.thoughtcrime.securesms.MuteDialog;
 import org.thoughtcrime.securesms.NewConversationActivity;
+import org.thoughtcrime.securesms.newsfeed.NewsFeedActivity;
 import org.thoughtcrime.securesms.postcreation.PostCreationActivity;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.badges.BadgeImageView;
@@ -207,6 +208,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
   private PulsingFloatingActionButton    fab;
   private PulsingFloatingActionButton    cameraFab;
   private PulsingFloatingActionButton    postFab;
+  private PulsingFloatingActionButton    feedFab;
   private Stub<SearchToolbar>            searchToolbar;
   private ImageView                      notificationProfileStatus;
   private ImageView                      proxyStatus;
@@ -266,6 +268,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
     fab                       = view.findViewById(R.id.fab);
     cameraFab                 = view.findViewById(R.id.camera_fab);
     postFab                 = view.findViewById(R.id.post_fab);
+    feedFab                 = view.findViewById(R.id.feed_fab);
     searchEmptyState          = view.findViewById(R.id.search_no_results);
     searchAction              = view.findViewById(R.id.search_action);
     toolbarShadow             = view.findViewById(R.id.conversation_list_toolbar_shadow);
@@ -290,6 +293,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
     fab.show();
     cameraFab.show();
     postFab.show();
+    feedFab.show();
 
     archiveDecoration = new ConversationListArchiveItemDecoration(new ColorDrawable(getResources().getColor(R.color.conversation_list_archive_background_end)));
     itemAnimator      = new ConversationListItemAnimator();
@@ -316,6 +320,7 @@ public class ConversationListFragment extends MainFragment implements ActionMode
                  .execute();
     });
     postFab.setOnClickListener(v -> startActivity(new Intent(getActivity(), PostCreationActivity.class)));
+    feedFab.setOnClickListener(v -> startActivity(new Intent(getActivity(), NewsFeedActivity.class)));
 
     initializeViewModel();
     initializeListAdapters();
