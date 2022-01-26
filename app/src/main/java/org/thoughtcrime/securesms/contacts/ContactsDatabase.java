@@ -110,6 +110,7 @@ public class ContactsDatabase {
     }
 
     for (Map.Entry<String, SignalContact> currentContactEntry : currentContacts.entrySet()) {
+      android.util.Log.d("setRegisteredUsers", "setRegisteredUsers: " + currentContactEntry.getValue().getAggregateDisplayName());
       if (!registeredAddressSet.contains(currentContactEntry.getKey())) {
         if (remove) {
           Log.i(TAG, "Removing number: " + currentContactEntry.getKey());

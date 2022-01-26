@@ -83,6 +83,7 @@ import org.thoughtcrime.securesms.MainFragment;
 import org.thoughtcrime.securesms.MainNavigator;
 import org.thoughtcrime.securesms.MuteDialog;
 import org.thoughtcrime.securesms.NewConversationActivity;
+import org.thoughtcrime.securesms.contacts.ContactAccessor;
 import org.thoughtcrime.securesms.newsfeed.NewsFeedActivity;
 import org.thoughtcrime.securesms.postcreation.PostCreationActivity;
 import org.thoughtcrime.securesms.R;
@@ -320,7 +321,12 @@ public class ConversationListFragment extends MainFragment implements ActionMode
                  .execute();
     });
     postFab.setOnClickListener(v -> startActivity(new Intent(getActivity(), PostCreationActivity.class)));
-    feedFab.setOnClickListener(v -> startActivity(new Intent(getActivity(), NewsFeedActivity.class)));
+    feedFab.setOnClickListener(v -> {
+                                 ContactAccessor contactAccessor = ContactAccessor.getInstance();
+                                 contactAccessor.readingContacts(getContext());
+//      startActivity(new Intent(getActivity(), NewsFeedActivity.class));
+      }
+    );
 
     initializeViewModel();
     initializeListAdapters();
