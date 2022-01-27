@@ -8,21 +8,25 @@ import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.material.button.MaterialButton;
+import com.annimon.stream.Stream;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import org.thoughtcrime.securesms.ContactSelectionActivity;
 import org.thoughtcrime.securesms.ContactSelectionListFragment;
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.groups.ui.creategroup.CreateGroupActivity;
+import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.Util;
+
+import java.util.List;
 
 
 public class ContactManagerActivity extends ContactSelectionActivity {
 
   private static final short REQUEST_CODE_ADD_DETAILS = 17275;
   public static String IS_CONTACT_MANAGER = "is_contact_manager";
+
+  private ExtendedFloatingActionButton next;
 
   public static Intent newIntent(@NonNull Context context) {
     Intent intent = new Intent(context, ContactManagerActivity.class);
@@ -45,6 +49,10 @@ public class ContactManagerActivity extends ContactSelectionActivity {
     super.onCreate(bundle, ready);
     assert getSupportActionBar() != null;
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+    next = findViewById(R.id.next);
+
+    next.setOnClickListener(v -> handleNextPressed());
   }
 
   @Override
@@ -71,77 +79,20 @@ public class ContactManagerActivity extends ContactSelectionActivity {
   }
 
   private void handleNextPressed() {
-//    Stopwatch                              stopwatch         = new Stopwatch("Recipient Refresh");
-//    SimpleProgressDialog.DismissibleDialog dismissibleDialog = SimpleProgressDialog.showDelayed(this);
-//
-//    SimpleTask.run(getLifecycle(), () -> {
-//      List<RecipientId> ids = Stream.of(contactsFragment.getSelectedContacts())
-//                                    .map(selectedContact -> selectedContact.getOrCreateRecipientId(this))
-//                                    .toList();
-//
-//      List<Recipient> resolved = Recipient.resolvedList(ids);
-//
-//      stopwatch.split("resolve");
-//
-//      List<Recipient> registeredChecks = Stream.of(resolved)
-//                                               .filter(r -> r.getRegistered() == RecipientDatabase.RegisteredState.UNKNOWN)
-//                                               .toList();
-//
-//      Log.i(TAG, "Need to do " + registeredChecks.size() + " registration checks.");
-//
-//      for (Recipient recipient : registeredChecks) {
-//        try {
-//          DirectoryHelper.refreshDirectoryFor(this, recipient, false);
-//        } catch (IOException e) {
-//          Log.w(TAG, "Failed to refresh registered status for " + recipient.getId(), e);
-//        }
-//      }
-//
-//      stopwatch.split("registered");
-//
-//      List<Recipient> recipientsAndSelf = new ArrayList<>(resolved);
-//      recipientsAndSelf.add(Recipient.self().resolve());
-//
-//      if (!SignalStore.internalValues().gv2DoNotCreateGv2Groups()) {
-//        try {
-//          GroupsV2CapabilityChecker.refreshCapabilitiesIfNecessary(recipientsAndSelf);
-//        } catch (IOException e) {
-//          Log.w(TAG, "Failed to refresh all recipient capabilities.", e);
-//        }
-//      }
-//
-//      stopwatch.split("capabilities");
-//
-//      resolved = Recipient.resolvedList(ids);
-//
-//      Pair<Boolean, List<RecipientId>> result;
-//
-//      boolean gv2 = Stream.of(recipientsAndSelf).allMatch(r -> r.getGroupsV2Capability() == Recipient.Capability.SUPPORTED);
-//      if (!gv2 && Stream.of(resolved).anyMatch(r -> !r.hasE164()))
-//      {
-//        Log.w(TAG, "Invalid GV1 group...");
-//        ids = Collections.emptyList();
-//        result = Pair.create(false, ids);
-//      } else {
-//        result = Pair.create(true, ids);
-//      }
-//
-//      stopwatch.split("gv1-check");
-//
-//      return result;
-//    }, result -> {
-//      dismissibleDialog.dismiss();
-//
-//      stopwatch.stop(TAG);
-//
-//      if (result.first) {
-//        startActivityForResult(AddGroupDetailsActivity.newIntent(this, result.second), REQUEST_CODE_ADD_DETAILS);
-//      } else {
-//        new AlertDialog.Builder(this)
-//            .setMessage(R.string.CreateGroupActivity_some_contacts_cannot_be_in_legacy_groups)
-//            .setPositiveButton(android.R.string.ok, (d, w) -> d.dismiss())
-//            .show();
-//      }
-//    });
+    ContactAccessor contactAccessor = ContactAccessor.getInstance();
+
+    List<RecipientId> ids = Stream.of(contactsFragment.getSelectedContacts())
+                                  .map(selectedContact -> selectedContact.getOrCreateRecipientId(this))
+                                  .toList();
+
+    /**
+     * TODO: Instead of looping and calling method, we should provide array to the database query.
+     * TODO: We should use simpleTask run, see the implementation in CreateGroupActivity.java
+     */
+    for (RecipientId recipient_id : ids) {
+      contactAccessor.addOrUpdateContactData(this, (int) recipient_id.toLong(), Math.random());
+    }
+
+    this.onBackPressed();
   }
 }

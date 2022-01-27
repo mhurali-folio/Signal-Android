@@ -38,6 +38,7 @@ public class ContactSelectionListItem extends ConstraintLayout implements Recipi
   private CheckBox        checkBox;
   private View            smsTag;
   private BadgeImageView  badge;
+  private TextView trustLevelText;
 
   private String           number;
   private String           chipName;
@@ -67,6 +68,7 @@ public class ContactSelectionListItem extends ConstraintLayout implements Recipi
     this.checkBox          = findViewById(R.id.check_box);
     this.smsTag            = findViewById(R.id.sms_tag);
     this.badge             = findViewById(R.id.contact_badge);
+    this.trustLevelText    = findViewById(R.id.trust_level);
 
     ViewUtil.setTextViewGravityStart(this.nameView, getContext());
   }
@@ -143,6 +145,24 @@ public class ContactSelectionListItem extends ConstraintLayout implements Recipi
     } else {
       badge.setBadgeFromRecipient(recipientSnapshot);
     }
+  }
+
+  public void set(@NonNull GlideRequests glideRequests,
+                  @Nullable RecipientId recipientId,
+                  int type,
+                  String name,
+                  String number,
+                  String label,
+                  String about,
+                  boolean checkboxVisible,
+                  boolean is_contact_manager_item) {
+    this.set(glideRequests, recipientId, type, name, number, label, about, checkboxVisible);
+
+    ContactAccessor contactAccessor = ContactAccessor.getInstance();
+    Double trust_level = contactAccessor.getContactDetailsForID(getContext(), (int) recipientId.toLong());
+    this.trustLevelText.setText("Trust: " + String.format("%.2f", trust_level));
+    this.trustLevelText.setVisibility(View.VISIBLE);
+    android.util.Log.d("debug_signal_contact", " name " + name + " trust_level " + trust_level);
   }
 
   public void setChecked(boolean selected, boolean animate) {
