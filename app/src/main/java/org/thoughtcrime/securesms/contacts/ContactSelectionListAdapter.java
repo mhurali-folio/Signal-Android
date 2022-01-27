@@ -213,6 +213,7 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
     this.multiSelect     = multiSelect;
     this.clickListener   = clickListener;
     this.currentContacts = currentContacts;
+    android.util.Log.d("debug_signal_contact", "currentContacts: " + currentContacts.size());
   }
 
   @Override

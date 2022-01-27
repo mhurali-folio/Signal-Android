@@ -106,6 +106,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".contacts.ContactManagerActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".newsfeed.NewsFeedActivity"
             android:exported="false" />
 

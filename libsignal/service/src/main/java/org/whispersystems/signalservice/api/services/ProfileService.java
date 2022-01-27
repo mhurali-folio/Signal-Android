@@ -7,6 +7,7 @@ import org.signal.zkgroup.profiles.ProfileKeyCredential;
 import org.signal.zkgroup.profiles.ProfileKeyCredentialRequest;
 import org.signal.zkgroup.profiles.ProfileKeyCredentialRequestContext;
 import org.signal.zkgroup.profiles.ProfileKeyVersion;
+import org.whispersystems.libsignal.logging.Log;
 import org.whispersystems.libsignal.util.Pair;
 import org.whispersystems.libsignal.util.guava.Function;
 import org.whispersystems.libsignal.util.guava.Optional;
@@ -81,6 +82,7 @@ public final class ProfileService {
 
         builder.setPath(String.format("/v1/profile/%s/%s/%s", aci, version, credentialRequest));
       } else {
+        Log.d("debug_signal_contact", "getProfile: " + aci + "    " + version + "  locale " + AcceptLanguagesUtil.getAcceptLanguageHeader(locale));
         builder.setPath(String.format("/v1/profile/%s/%s", aci, version));
       }
     } else {

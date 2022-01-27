@@ -337,7 +337,6 @@ public final class ContactSelectionListFragment extends LoggingFragment
 
   private void initializeCursor() {
     glideRequests = GlideApp.with(this);
-
     cursorRecyclerViewAdapter = new ContactSelectionListAdapter(requireContext(),
                                                                 glideRequests,
                                                                 null,
@@ -466,6 +465,9 @@ public final class ContactSelectionListFragment extends LoggingFragment
   public void onLoadFinished(@NonNull Loader<Cursor> loader, @Nullable Cursor data) {
     swipeRefresh.setVisibility(View.VISIBLE);
     showContactsLayout.setVisibility(View.GONE);
+
+    if(data != null)
+    android.util.Log.d("debug_signal_contact", "onLoadFinished: " + data.getCount());
 
     cursorRecyclerViewAdapter.changeCursor(data);
 
