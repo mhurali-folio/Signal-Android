@@ -74,6 +74,8 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
   private final GlideRequests     glideRequests;
   private final Set<RecipientId>  currentContacts;
 
+  private boolean is_contact_manager = false;
+
   private final SelectedContactSet selectedContacts = new SelectedContactSet();
 
   public void clearSelectedContacts() {
@@ -121,6 +123,7 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
   public static class ContactViewHolder extends ViewHolder implements LetterHeaderDecoration.LetterHeaderItem {
 
     private String letterHeader;
+    private Boolean is_contact_manager_item = false;
 
     ContactViewHolder(@NonNull final View itemView,
                       @Nullable final ItemClickListener clickListener)
@@ -131,12 +134,27 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
       });
     }
 
+    ContactViewHolder(@NonNull final View itemView,
+                      @Nullable final ItemClickListener clickListener,
+                      Boolean is_contact_manager_item)
+    {
+      super(itemView);
+      itemView.setOnClickListener(v -> {
+        if (clickListener != null) clickListener.onItemClick(getView());
+      });
+      this.is_contact_manager_item = is_contact_manager_item;
+    }
+
     public ContactSelectionListItem getView() {
       return (ContactSelectionListItem) itemView;
     }
 
     public void bind(@NonNull GlideRequests glideRequests, @Nullable RecipientId recipientId, int type, String name, String number, String label, String about, boolean checkBoxVisible) {
-      getView().set(glideRequests, recipientId, type, name, number, label, about, checkBoxVisible);
+      if(is_contact_manager_item) {
+        getView().set(glideRequests, recipientId, type, name, number, label, about, checkBoxVisible, is_contact_manager_item);
+      } else {
+        getView().set(glideRequests, recipientId, type, name, number, label, about, checkBoxVisible);
+      }
     }
 
     @Override
@@ -200,6 +218,10 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
     }
   }
 
+  public void setIsContactManager(boolean flag) {
+    is_contact_manager = flag;
+  }
+
   public ContactSelectionListAdapter(@NonNull Context context,
                                      @NonNull GlideRequests glideRequests,
                                      @Nullable Cursor cursor,
@@ -213,6 +235,7 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
     this.multiSelect     = multiSelect;
     this.clickListener   = clickListener;
     this.currentContacts = currentContacts;
+    android.util.Log.d("debug_signal_contact", "currentContacts: " + currentContacts.size());
   }
 
   @Override
@@ -228,7 +251,9 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
 
   @Override
   public ViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
-    if (viewType == VIEW_TYPE_CONTACT) {
+    if(is_contact_manager) {
+      return new ContactViewHolder(layoutInflater.inflate(R.layout.contact_selection_list_item, parent, false), clickListener, true);
+    } else if (viewType == VIEW_TYPE_CONTACT) {
       return new ContactViewHolder(layoutInflater.inflate(R.layout.contact_selection_list_item, parent, false), clickListener);
     } else {
       return new DividerViewHolder(layoutInflater.inflate(R.layout.contact_selection_list_divider, parent, false));

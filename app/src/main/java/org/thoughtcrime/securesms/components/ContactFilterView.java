@@ -164,6 +164,10 @@ public final class ContactFilterView extends FrameLayout {
     expandTapArea(toggleContainer, view);
   }
 
+  public void hideFilter() {
+    toggle.removeAllViewsInLayout();
+  }
+
   private void expandTapArea(final View container, final View child) {
     final int padding = getResources().getDimensionPixelSize(R.dimen.contact_selection_actions_tap_area);
 

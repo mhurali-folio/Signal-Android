@@ -16,18 +16,24 @@
  */
 package org.thoughtcrime.securesms.contacts;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
 import org.thoughtcrime.securesms.util.SqlUtil;
@@ -51,6 +57,8 @@ import java.util.Set;
  */
 
 public class ContactAccessor {
+
+  public static String CONTACT_MIME_TYPE = "vnd.android.cursor.item/peepline";
 
   public static final String PUSH_COLUMN = "push";
 
@@ -113,6 +121,79 @@ public class ContactAccessor {
     String   orderBy    = Phone.LOOKUP_KEY + " ASC, " + ContactsContract.Data.MIMETYPE + " DESC, " + ContactsContract.CommonDataKinds.Phone._ID + " DESC";
 
     return context.getContentResolver().query(uri, projection, where, args, orderBy);
+  }
+
+  public Cursor getAllCustomSystemContacts(Context context) {
+    Uri      uri        = ContactsContract.Contacts.CONTENT_URI;
+    String   where      = ContactsContract.Data.MIMETYPE + " = ?";
+    String where1 = "display_name IS NOT NULL";
+    String[] args       = SqlUtil.buildArgs("vnd.android.cursor.item/peepline");
+
+    return context.getContentResolver().query(uri, null, where1, null, null);
+  }
+
+  public void readingContacts(Context context) {
+    Cursor cursor = getAllCustomSystemContacts(context);
+    Log.d("readingContacts", "readingContacts: heelloo " + cursor.getCount());
+
+    while (cursor != null && cursor.moveToNext()) {
+      Log.d("readingContacts", "readingContacts: "
+//                               + " data1 " + cursor.getString(cursor.getColumnIndexOrThrow("data1"))
+                               + " name " + cursor.getString(cursor.getColumnIndexOrThrow("display_name"))
+                               + " _id " + cursor.getString(cursor.getColumnIndexOrThrow("_id"))
+      );
+      addOrUpdateContactData(context, cursor.getInt(cursor.getColumnIndexOrThrow("_id")), Math.random());
+    }
+  }
+
+  public Double getContactDetailsForID(Context context, Integer rawContactId) {
+    Double trust_level = Double.valueOf(0f);
+    Uri      uri        = ContactsContract.Data.CONTENT_URI;
+    String   where      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.RAW_CONTACT_ID + " = ?";
+    String[] args       = SqlUtil.buildArgs(CONTACT_MIME_TYPE, rawContactId);
+
+    Cursor cursor = context.getContentResolver().query(uri, null, where, args, null);
+
+    if(cursor != null && cursor.moveToNext()) {
+      trust_level = cursor.getDouble(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA1));
+    }
+
+   return trust_level;
+  }
+
+  public void addOrUpdateContactData(Context context, Integer rawContactId, double trust_level) {
+    try {
+      String   whereMimeContact      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.RAW_CONTACT_ID + " = ?";
+      String[] argsMimeContact       = SqlUtil.buildArgs(CONTACT_MIME_TYPE, rawContactId);
+
+      Cursor c = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                                                    null,
+                                                    whereMimeContact,
+                                                    argsMimeContact,
+                                                    null);
+
+      ArrayList<ContentProviderOperation> ops = new ArrayList();
+      Log.d("debug_signal_contact", "addOrUpdateContactData: count" + c.getCount() + " " + rawContactId);
+
+      if(c.getCount() == 0) {
+        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                                        .withValue(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
+                                        .withValue(ContactsContract.Data.MIMETYPE, CONTACT_MIME_TYPE)
+                                        .withValue(ContactsContract.Data.DATA1, trust_level)
+                                        .build());
+      }
+      else if(c != null && c.moveToNext()){
+        ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                                        .withSelection(whereMimeContact, argsMimeContact)
+                                        .withValue(ContactsContract.Data.MIMETYPE, CONTACT_MIME_TYPE)
+                                        .withValue(ContactsContract.Data.DATA1, trust_level)
+                                        .build());
+      }
+
+      context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+    } catch (Exception e) {
+      Log.d("readingContacts", "readingContacts: exception " + e.toString());
+    }
   }
 
   public String getNameFromContact(Context context, Uri uri) {

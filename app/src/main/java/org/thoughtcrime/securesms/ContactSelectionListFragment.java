@@ -151,6 +151,8 @@ public final class ContactSelectionListFragment extends LoggingFragment
             private boolean           hideCount;
             private boolean           canSelectSelf;
 
+            private boolean is_contact_manager = false;
+
   @Override
   public void onAttach(@NonNull Context context) {
     super.onAttach(context);
@@ -337,7 +339,6 @@ public final class ContactSelectionListFragment extends LoggingFragment
 
   private void initializeCursor() {
     glideRequests = GlideApp.with(this);
-
     cursorRecyclerViewAdapter = new ContactSelectionListAdapter(requireContext(),
                                                                 glideRequests,
                                                                 null,
@@ -419,6 +420,10 @@ public final class ContactSelectionListFragment extends LoggingFragment
     });
   }
 
+  public void setIsContactManager(boolean flag) {
+    is_contact_manager = flag;
+  }
+
   public void setQueryFilter(String filter) {
     this.cursorFilter = filter;
     LoaderManager.getInstance(this).restartLoader(0, null, this);
@@ -466,6 +471,13 @@ public final class ContactSelectionListFragment extends LoggingFragment
   public void onLoadFinished(@NonNull Loader<Cursor> loader, @Nullable Cursor data) {
     swipeRefresh.setVisibility(View.VISIBLE);
     showContactsLayout.setVisibility(View.GONE);
+
+    if(data != null)
+    android.util.Log.d("debug_signal_contact", "onLoadFinished: " + data.getCount());
+
+    if(is_contact_manager) {
+      cursorRecyclerViewAdapter.setIsContactManager(true);
+    }
 
     cursorRecyclerViewAdapter.changeCursor(data);
 

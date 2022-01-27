@@ -434,6 +434,11 @@
     <string name="CreateGroupActivity_some_contacts_cannot_be_in_legacy_groups">Some contacts cannot be in legacy groups.</string>
     <string name="CreateGroupActivity__select_members">Select members</string>
 
+    <!-- ContactManagerActivity -->
+    <string name="ContactManagerActivity__next">Next</string>
+    <string name="ContactManagerActivity__heading">Contact Manager</string>
+    <string name="ContactManagerActivity__search_hint">Search name</string>
+
     <!-- CreateProfileActivity -->
     <string name="CreateProfileActivity__profile">Profile</string>
     <string name="CreateProfileActivity_error_setting_profile_photo">Error setting profile photo</string>

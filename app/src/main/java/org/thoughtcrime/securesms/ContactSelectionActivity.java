@@ -25,6 +25,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.components.ContactFilterView;
+import org.thoughtcrime.securesms.contacts.ContactManagerActivity;
 import org.thoughtcrime.securesms.contacts.ContactsCursorLoader.DisplayMode;
 import org.thoughtcrime.securesms.contacts.sync.DirectoryHelper;
 import org.thoughtcrime.securesms.recipients.RecipientId;
@@ -97,6 +98,14 @@ public abstract class ContactSelectionActivity extends PassphraseRequiredActivit
 
   private void initializeContactFilterView() {
     this.contactFilterView = findViewById(R.id.contact_filter_edit_text);
+    if(getIsContactManager()) {
+      this.contactFilterView.hideFilter();
+      this.contactFilterView.setHint(R.string.ContactManagerActivity__search_hint);
+    }
+  }
+
+  private boolean getIsContactManager() {
+    return getIntent().hasExtra(ContactManagerActivity.IS_CONTACT_MANAGER) ? true : false;
   }
 
   private void initializeToolbar() {
@@ -111,6 +120,9 @@ public abstract class ContactSelectionActivity extends PassphraseRequiredActivit
   private void initializeResources() {
     contactsFragment = (ContactSelectionListFragment) getSupportFragmentManager().findFragmentById(R.id.contact_selection_list_fragment);
     contactsFragment.setOnRefreshListener(this);
+    if(getIsContactManager()) {
+      contactsFragment.setIsContactManager(true);
+    }
   }
 
   private void initializeSearch() {

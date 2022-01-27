@@ -51,6 +51,7 @@ public class ConversationListArchiveFragment extends ConversationListFragment im
   private PulsingFloatingActionButton cameraFab;
   private PulsingFloatingActionButton postFab;
   private PulsingFloatingActionButton feedFab;
+  private PulsingFloatingActionButton contactsFab;
   private Stub<Toolbar>               toolbar;
 
   public static ConversationListArchiveFragment newInstance() {
@@ -72,8 +73,9 @@ public class ConversationListArchiveFragment extends ConversationListFragment im
     list       = view.findViewById(R.id.list);
     fab        = view.findViewById(R.id.fab);
     cameraFab  = view.findViewById(R.id.camera_fab);
-    postFab  = view.findViewById(R.id.post_fab);
-    feedFab  = view.findViewById(R.id.feed_fab);
+    postFab    = view.findViewById(R.id.post_fab);
+    feedFab    = view.findViewById(R.id.feed_fab);
+    contactsFab = view.findViewById(R.id.contacts_fab);
     emptyState = new Stub<>(view.findViewById(R.id.empty_state));
 
     ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -84,6 +86,7 @@ public class ConversationListArchiveFragment extends ConversationListFragment im
     cameraFab.hide();
     postFab.hide();
     feedFab.hide();
+    contactsFab.hide();
   }
 
   @Override
