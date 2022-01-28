@@ -2,8 +2,12 @@ package org.thoughtcrime.securesms.contacts;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +31,10 @@ public class ContactManagerActivity extends ContactSelectionActivity {
   public static String IS_CONTACT_MANAGER = "is_contact_manager";
 
   private ExtendedFloatingActionButton next;
+  private SeekBar                      trustSeekBar;
+  private TextView                     trustLevelHeading;
+
+  private double                       trustLevel;
 
   public static Intent newIntent(@NonNull Context context) {
     Intent intent = new Intent(context, ContactManagerActivity.class);
@@ -50,9 +58,36 @@ public class ContactManagerActivity extends ContactSelectionActivity {
     assert getSupportActionBar() != null;
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-    next = findViewById(R.id.next);
+    trustLevel = 0;
 
+    next = findViewById(R.id.next);
     next.setOnClickListener(v -> handleNextPressed());
+
+    trustLevelHeading = findViewById(R.id.trustLevelHeading);
+
+    trustSeekBar = (SeekBar)findViewById(R.id.trustSeekBar);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      trustSeekBar.setTooltipText("20");
+    }
+
+    trustSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+      public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        trustLevel = convertSeekbarValue(progress);
+        trustLevelHeading.setText(getResources().getString(R.string.ContactManagerActivity__trust_level_heading) + " " + String.format("%.1f", trustLevel));
+      }
+
+      @Override public void onStartTrackingTouch(SeekBar seekBar) {
+
+      }
+
+      @Override public void onStopTrackingTouch(SeekBar seekBar) {
+
+      }
+    });
+  }
+
+  private double convertSeekbarValue(int value){
+    return value * 0.1f;
   }
 
   @Override
@@ -90,7 +125,7 @@ public class ContactManagerActivity extends ContactSelectionActivity {
      * TODO: We should use simpleTask run, see the implementation in CreateGroupActivity.java
      */
     for (RecipientId recipient_id : ids) {
-      contactAccessor.addOrUpdateContactData(this, (int) recipient_id.toLong(), Math.random());
+      contactAccessor.addOrUpdateContactData(this, (int) recipient_id.toLong(), trustLevel);
     }
 
     this.onBackPressed();

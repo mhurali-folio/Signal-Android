@@ -160,9 +160,8 @@ public class ContactSelectionListItem extends ConstraintLayout implements Recipi
 
     ContactAccessor contactAccessor = ContactAccessor.getInstance();
     Double trust_level = contactAccessor.getContactDetailsForID(getContext(), (int) recipientId.toLong());
-    this.trustLevelText.setText("Trust: " + String.format("%.2f", trust_level));
+    this.trustLevelText.setText("Trust: " + String.format("%.1f", trust_level));
     this.trustLevelText.setVisibility(View.VISIBLE);
-    android.util.Log.d("debug_signal_contact", " name " + name + " trust_level " + trust_level);
   }
 
   public void setChecked(boolean selected, boolean animate) {
