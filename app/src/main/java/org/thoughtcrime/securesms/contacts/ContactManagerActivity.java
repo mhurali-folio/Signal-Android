@@ -21,6 +21,7 @@ import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.Util;
+import org.thoughtcrime.securesms.util.concurrent.SimpleTask;
 
 import java.util.List;
 
@@ -120,14 +121,24 @@ public class ContactManagerActivity extends ContactSelectionActivity {
                                   .map(selectedContact -> selectedContact.getOrCreateRecipientId(this))
                                   .toList();
 
-    /**
-     * TODO: Instead of looping and calling method, we should provide array to the database query.
-     * TODO: We should use simpleTask run, see the implementation in CreateGroupActivity.java
-     */
-    for (RecipientId recipient_id : ids) {
-      contactAccessor.addOrUpdateContactData(this, (int) recipient_id.toLong(), trustLevel);
-    }
+    Context context = this;
 
+    SimpleTask.BackgroundTask backgroundTask = new SimpleTask.BackgroundTask(){
+      @Override public Object run() {
+          for (RecipientId recipient_id : ids) {
+            contactAccessor.addOrUpdateContactData(context, (int) recipient_id.toLong(), trustLevel);
+          }
+          return null;
+        }
+    };
+
+    SimpleTask.ForegroundTask foregroundTask = new SimpleTask.ForegroundTask() {
+      @Override public void run(Object result) {
+
+      }
+    };
+
+    SimpleTask.run(getLifecycle(), backgroundTask , foregroundTask);
     this.onBackPressed();
   }
 }

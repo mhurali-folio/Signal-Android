@@ -123,29 +123,6 @@ public class ContactAccessor {
     return context.getContentResolver().query(uri, projection, where, args, orderBy);
   }
 
-  public Cursor getAllCustomSystemContacts(Context context) {
-    Uri      uri        = ContactsContract.Contacts.CONTENT_URI;
-    String   where      = ContactsContract.Data.MIMETYPE + " = ?";
-    String where1 = "display_name IS NOT NULL";
-    String[] args       = SqlUtil.buildArgs("vnd.android.cursor.item/peepline");
-
-    return context.getContentResolver().query(uri, null, where1, null, null);
-  }
-
-  public void readingContacts(Context context) {
-    Cursor cursor = getAllCustomSystemContacts(context);
-    Log.d("readingContacts", "readingContacts: heelloo " + cursor.getCount());
-
-    while (cursor != null && cursor.moveToNext()) {
-      Log.d("readingContacts", "readingContacts: "
-//                               + " data1 " + cursor.getString(cursor.getColumnIndexOrThrow("data1"))
-                               + " name " + cursor.getString(cursor.getColumnIndexOrThrow("display_name"))
-                               + " _id " + cursor.getString(cursor.getColumnIndexOrThrow("_id"))
-      );
-      addOrUpdateContactData(context, cursor.getInt(cursor.getColumnIndexOrThrow("_id")), Math.random());
-    }
-  }
-
   public Double getContactDetailsForID(Context context, Integer rawContactId) {
     Double trust_level = Double.valueOf(0f);
     Uri      uri        = ContactsContract.Data.CONTENT_URI;
