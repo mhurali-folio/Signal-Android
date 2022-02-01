@@ -139,6 +139,7 @@ public class ContactManagerActivity extends ContactSelectionActivity {
     };
 
     SimpleTask.run(getLifecycle(), backgroundTask , foregroundTask);
+
     this.onBackPressed();
   }
 }

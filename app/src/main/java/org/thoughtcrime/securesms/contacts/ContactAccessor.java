@@ -17,6 +17,7 @@
 package org.thoughtcrime.securesms.contacts;
 
 import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -36,6 +37,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
+import org.thoughtcrime.securesms.recipients.Recipient;
+import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.SqlUtil;
 
 import java.util.ArrayList;
@@ -124,23 +127,84 @@ public class ContactAccessor {
   }
 
   public Double getContactDetailsForID(Context context, Integer rawContactId) {
-    Double trust_level = Double.valueOf(0f);
+    Double  trust_level = Double.valueOf(0f);
     Uri      uri        = ContactsContract.Data.CONTENT_URI;
-    String   where      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.RAW_CONTACT_ID + " = ?";
+    String   where      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.DATA1 + " = ?";
     String[] args       = SqlUtil.buildArgs(CONTACT_MIME_TYPE, rawContactId);
+    Recipient recipient = Recipient.resolved(RecipientId.from(rawContactId));
+
 
     Cursor cursor = context.getContentResolver().query(uri, null, where, args, null);
 
+    Log.d("debug_signal_contact", "getContactDetailsForID: " + recipient.getDisplayNameOrUsername(context)
+                         + "  getCount " + cursor.getCount()
+                         + "  rawContactId " + rawContactId
+                                  + "  getE164 " + recipient.getE164()
+    );
+
     if(cursor != null && cursor.moveToNext()) {
-      trust_level = cursor.getDouble(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA1));
+      trust_level = cursor.getDouble(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA2));
     }
 
+//    Cursor cursor_contact = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, null, null, null);
+//
+//    while(cursor_contact != null && cursor_contact.moveToNext()) {
+//      Log.d("debug_signal_contact", "getContactDetailsForID: Data table " + cursor_contact.getString(cursor_contact.getColumnIndex(ContactsContract.Data.MIMETYPE))
+//                           + "  data1 " +  cursor_contact.getString(cursor_contact.getColumnIndex(ContactsContract.Data.DATA1))
+//                           + "  data2 " +  cursor_contact.getString(cursor_contact.getColumnIndex(ContactsContract.Data.DATA2))
+//                           + "  DISPLAY_NAME " +  cursor_contact.getString(cursor_contact.getColumnIndex(ContactsContract.Data.DISPLAY_NAME))
+//                           + "  RAW_CONTACT_ID " +  cursor_contact.getString(cursor_contact.getColumnIndex(ContactsContract.Data.RAW_CONTACT_ID))
+//      );
+//    }
+   cursor.close();
    return trust_level;
   }
 
+  public int getRawContactId(Context context, int contactId)
+  {
+    String[] projection      = new String[]{ContactsContract.RawContacts._ID};
+    String   selection       = ContactsContract.RawContacts.CONTACT_ID + "=? AND " + ContactsContract.RawContacts.ACCOUNT_TYPE + " IS NULL";
+    String[] selectionArgs   = new String[]{String.valueOf(contactId)};
+    Cursor   c               = context.getContentResolver().query(ContactsContract.RawContacts.CONTENT_URI,projection,selection,selectionArgs , null);
+    int      rawContactId    = 0;
+
+    if(c != null && c.moveToNext()) {
+      rawContactId = c.getInt(c.getColumnIndex(ContactsContract.RawContacts._ID));
+    }
+
+    return rawContactId;
+  }
+
+  public int getContactId(Context context, RecipientId recipientId) {
+    String contactId = null;
+    Recipient recipient = Recipient.resolved(recipientId);
+    Uri contactURI = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(recipient.getE164().orNull()));
+    String[] projection = new String[] {ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup._ID};
+
+    Cursor cursor =
+        context.getContentResolver().query(
+            contactURI,
+            projection,
+            null,
+            null,
+            null);
+
+    if(cursor != null && cursor.moveToNext()) {
+      contactId   = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup._ID));
+      cursor.close();
+    }
+
+    return Integer.parseInt(contactId);
+  }
+
   public void addOrUpdateContactData(Context context, Integer rawContactId, double trust_level) {
+    /**
+     * We are using Data1 as reference to the recipient ID so that we can later query using it and mimetype.
+     */
+    int localRawContactId = 0;
+
     try {
-      String   whereMimeContact      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.RAW_CONTACT_ID + " = ?";
+      String   whereMimeContact      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.DATA1 + " = ?";
       String[] argsMimeContact       = SqlUtil.buildArgs(CONTACT_MIME_TYPE, rawContactId);
 
       Cursor c = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
@@ -150,26 +214,46 @@ public class ContactAccessor {
                                                     null);
 
       ArrayList<ContentProviderOperation> ops = new ArrayList();
-      Log.d("debug_signal_contact", "addOrUpdateContactData: count" + c.getCount() + " " + rawContactId);
 
       if(c.getCount() == 0) {
+        localRawContactId = getRawContactId(context, getContactId(context, RecipientId.from(rawContactId)));
+
+        ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+                                               .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                                               .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                                        .withValue(ContactsContract.RawContacts.AGGREGATION_MODE, ContactsContract.RawContacts.AGGREGATION_MODE_DEFAULT)
+                                        .build());
+
         ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                                        .withValue(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
+                                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
                                         .withValue(ContactsContract.Data.MIMETYPE, CONTACT_MIME_TYPE)
-                                        .withValue(ContactsContract.Data.DATA1, trust_level)
+                                        .withValue(ContactsContract.Data.DATA1, rawContactId)
+                                        .withValue(ContactsContract.Data.DATA2, trust_level)
                                         .build());
       }
       else if(c != null && c.moveToNext()){
         ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
                                         .withSelection(whereMimeContact, argsMimeContact)
                                         .withValue(ContactsContract.Data.MIMETYPE, CONTACT_MIME_TYPE)
-                                        .withValue(ContactsContract.Data.DATA1, trust_level)
+                                        .withValue(ContactsContract.Data.DATA2, trust_level)
                                         .build());
       }
 
-      context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+      final ContentProviderResult[] contentProviderResults = context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+
+      if (localRawContactId > 0) {
+        ArrayList<ContentProviderOperation> mergeOps = new ArrayList<>();
+        mergeOps.add(ContentProviderOperation.newUpdate(ContactsContract.AggregationExceptions.CONTENT_URI)
+                                             .withValue(ContactsContract.AggregationExceptions.TYPE, ContactsContract.AggregationExceptions.TYPE_KEEP_TOGETHER)
+                                             .withValue(ContactsContract.AggregationExceptions.RAW_CONTACT_ID1, contentProviderResults[0].uri.getLastPathSegment())
+                                             .withValue(ContactsContract.AggregationExceptions.RAW_CONTACT_ID2, localRawContactId)
+                                             .build());
+        context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, mergeOps);
+        c.close();
+      }
+
     } catch (Exception e) {
-      Log.d("readingContacts", "readingContacts: exception " + e.toString());
+      e.printStackTrace();
     }
   }
 
