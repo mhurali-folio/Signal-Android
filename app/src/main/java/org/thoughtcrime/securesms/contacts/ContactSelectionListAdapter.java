@@ -17,6 +17,7 @@
 package org.thoughtcrime.securesms.contacts;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.text.SpannableString;
@@ -39,6 +40,7 @@ import org.thoughtcrime.securesms.contacts.ContactSelectionListAdapter.HeaderVie
 import org.thoughtcrime.securesms.contacts.ContactSelectionListAdapter.ViewHolder;
 import org.thoughtcrime.securesms.database.CursorRecyclerViewAdapter;
 import org.thoughtcrime.securesms.mms.GlideRequests;
+import org.thoughtcrime.securesms.newsfeed.NewsFeedActivity;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.CharacterIterable;
 import org.thoughtcrime.securesms.util.CursorUtil;
@@ -74,7 +76,7 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
   private final GlideRequests     glideRequests;
   private final Set<RecipientId>  currentContacts;
 
-  private boolean is_contact_manager = false;
+  private boolean is_contact_manager               = false;
 
   private final SelectedContactSet selectedContacts = new SelectedContactSet();
 
@@ -95,6 +97,15 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
   public void removeFromSelectedContacts(@NonNull SelectedContact selectedContact) {
     int removed = selectedContacts.remove(selectedContact);
     Log.i(TAG, String.format(Locale.US, "Removed %d selected contacts that matched", removed));
+  }
+
+  private class ContactPhotoClickListener {
+    public void onClick(ContactSelectionListItem contactSelectionListItem) {
+      android.util.Log.d(TAG, "ContactSelectionListItem: " + contactSelectionListItem.getRecipientId());
+      Intent intent = new Intent(getContext(), ContactDetailActivity.class);
+      intent.putExtra("recipient_id", (int) contactSelectionListItem.getRecipientId().orNull().toLong());
+      getContext().startActivity(intent);
+    }
   }
 
   public abstract static class ViewHolder extends RecyclerView.ViewHolder {
@@ -136,9 +147,15 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
 
     ContactViewHolder(@NonNull final View itemView,
                       @Nullable final ItemClickListener clickListener,
+                      ContactPhotoClickListener contactPhotoClickListener,
                       Boolean is_contact_manager_item)
     {
       super(itemView);
+      this.getView().getContactPhoto().setOnClickListener(l -> {
+        android.util.Log.d(TAG, "onFinishInflate: heellloo");
+        contactPhotoClickListener.onClick(getView());
+      });
+
       itemView.setOnClickListener(v -> {
         if (clickListener != null) clickListener.onItemClick(getView());
       });
@@ -235,7 +252,6 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
     this.multiSelect     = multiSelect;
     this.clickListener   = clickListener;
     this.currentContacts = currentContacts;
-    android.util.Log.d("debug_signal_contact", "currentContacts: " + currentContacts.size());
   }
 
   @Override
@@ -252,7 +268,7 @@ public class ContactSelectionListAdapter extends CursorRecyclerViewAdapter<ViewH
   @Override
   public ViewHolder onCreateItemViewHolder(ViewGroup parent, int viewType) {
     if(is_contact_manager) {
-      return new ContactViewHolder(layoutInflater.inflate(R.layout.contact_selection_list_item, parent, false), clickListener, true);
+      return new ContactViewHolder(layoutInflater.inflate(R.layout.contact_selection_list_item, parent, false), clickListener, new ContactPhotoClickListener(), true);
     } else if (viewType == VIEW_TYPE_CONTACT) {
       return new ContactViewHolder(layoutInflater.inflate(R.layout.contact_selection_list_item, parent, false), clickListener);
     } else {

@@ -159,9 +159,11 @@ public class ContactSelectionListItem extends ConstraintLayout implements Recipi
     this.set(glideRequests, recipientId, type, name, number, label, about, checkboxVisible);
 
     ContactAccessor contactAccessor = ContactAccessor.getInstance();
-    Double trust_level = contactAccessor.getContactDetailsForID(getContext(), (int) recipientId.toLong());
-    this.trustLevelText.setText("Trust: " + String.format("%.1f", trust_level));
-    this.trustLevelText.setVisibility(View.VISIBLE);
+    if(recipientId != null) {
+      Double trust_level = contactAccessor.getContactDetailsForID(getContext(), (int) recipientId.toLong());
+      this.trustLevelText.setText("Trust: " + String.format("%.1f", trust_level));
+      this.trustLevelText.setVisibility(View.VISIBLE);
+    }
   }
 
   public void setChecked(boolean selected, boolean animate) {
@@ -264,5 +266,9 @@ public class ContactSelectionListItem extends ConstraintLayout implements Recipi
     } else {
       Log.w(TAG, "Bad change! Local recipient doesn't match. Ignoring. Local: " + (this.recipient == null ? "null" : this.recipient.getId()) + ", Changed: " + recipient.getId());
     }
+  }
+
+  public AvatarImageView getContactPhoto() {
+    return contactPhotoImage;
   }
 }

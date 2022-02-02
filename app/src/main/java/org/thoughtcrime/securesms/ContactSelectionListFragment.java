@@ -139,7 +139,6 @@ public final class ContactSelectionListFragment extends LoggingFragment
   private View                                        shadowView;
   private ToolbarShadowAnimationHelper                toolbarShadowAnimationHelper;
 
-
   @Nullable private FixedViewsAdapter headerAdapter;
   @Nullable private FixedViewsAdapter footerAdapter;
   @Nullable private ListCallback      listCallback;

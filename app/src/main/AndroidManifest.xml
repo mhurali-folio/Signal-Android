@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.thoughtcrime.securesms" >
+    package="org.thoughtcrime.securesms">
 
     <uses-sdk tools:overrideLibrary="androidx.camera.core,androidx.camera.camera2,androidx.camera.lifecycle,androidx.camera.view" />
 
@@ -100,15 +100,16 @@
         android:resizeableActivity="true"
         android:supportsRtl="true"
         android:theme="@style/TextSecure.LightTheme"
-        tools:replace="android:allowBackup" >
+        tools:replace="android:allowBackup">
+        <activity
+            android:name=".contacts.ContactDetailActivity"
+            android:exported="false" />
         <activity
             android:name=".postcreation.PostCreationActivity"
             android:exported="false" />
-
         <activity
             android:name=".contacts.ContactManagerActivity"
             android:exported="false" />
-
         <activity
             android:name=".newsfeed.NewsFeedActivity"
             android:exported="false" />
@@ -158,7 +159,7 @@
             android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
             android:parentActivityName=".MainActivity"
             android:theme="@style/Signal.Light.NoActionBar.Invite"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -170,7 +171,7 @@
             android:windowSoftInputMode="stateUnchanged" />
         <activity
             android:name=".DeviceProvisioningActivity"
-            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize" >
+            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -203,7 +204,7 @@
             android:excludeFromRecents="true"
             android:taskAffinity=""
             android:theme="@style/Theme.Signal.DayNight.NoActionBar"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -236,7 +237,7 @@
             android:launchMode="singleTask"
             android:noHistory="true"
             android:theme="@style/Theme.Signal.DayNight.NoActionBar"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -274,7 +275,7 @@
         <activity-alias
             android:name=".RoutingActivity"
             android:exported="true"
-            android:targetActivity=".SplashActivity" >
+            android:targetActivity=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -296,7 +297,7 @@
         <activity
             android:name=".deeplinks.DeepLinkEntryActivity"
             android:noHistory="true"
-            android:theme="@style/Signal.Transparent" >
+            android:theme="@style/Signal.Transparent">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -309,7 +310,7 @@
             </intent-filter>
             <intent-filter
                 android:autoVerify="true"
-                tools:targetApi="23" >
+                tools:targetApi="23">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -351,7 +352,7 @@
             android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
             android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
-            android:windowSoftInputMode="stateUnchanged" >
+            android:windowSoftInputMode="stateUnchanged">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.thoughtcrime.securesms.MainActivity" />
@@ -440,7 +441,7 @@
             android:name=".components.settings.app.AppSettingsActivity"
             android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@style/Signal.DayNight.NoActionBar"
-            android:windowSoftInputMode="adjustResize" >
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -455,18 +456,15 @@
             android:name=".components.settings.conversation.ConversationSettingsActivity"
             android:configChanges="touchscreen|keyboard|keyboardHidden|screenLayout|screenSize"
             android:theme="@style/Signal.DayNight.ConversationSettings"
-            android:windowSoftInputMode="stateAlwaysHidden" >
-        </activity>
+            android:windowSoftInputMode="stateAlwaysHidden"></activity>
         <activity
             android:name=".wallpaper.ChatWallpaperActivity"
             android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
-            android:windowSoftInputMode="stateAlwaysHidden" >
-        </activity>
+            android:windowSoftInputMode="stateAlwaysHidden"></activity>
         <activity
             android:name=".wallpaper.ChatWallpaperPreviewActivity"
             android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
-            android:windowSoftInputMode="stateAlwaysHidden" >
-        </activity>
+            android:windowSoftInputMode="stateAlwaysHidden"></activity>
         <activity
             android:name=".devicetransfer.olddevice.OldDeviceTransferActivity"
             android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
@@ -535,7 +533,7 @@
             android:name=".PlayServicesProblemActivity"
             android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@style/TextSecure.DialogActivity" />
-        <activity android:name=".SmsSendtoActivity" >
+        <activity android:name=".SmsSendtoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />
                 <action android:name="android.intent.action.VIEW" />
@@ -562,7 +560,7 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:permission="android.permission.CALL_PHONE"
-            android:theme="@style/NoAnimation.Theme.BlackScreen" >
+            android:theme="@style/NoAnimation.Theme.BlackScreen">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -700,13 +698,13 @@
         <service
             android:name=".messages.IncomingMessageObserver$ForegroundService"
             android:enabled="true" />
-        <service android:name=".components.voice.VoiceNotePlaybackService" >
+        <service android:name=".components.voice.VoiceNotePlaybackService">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
 
-        <receiver android:name="androidx.media.session.MediaButtonReceiver" >
+        <receiver android:name="androidx.media.session.MediaButtonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
@@ -715,7 +713,7 @@
         <service
             android:name=".service.QuickResponseService"
             android:exported="true"
-            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE" >
+            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE">
             <intent-filter>
                 <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
 
@@ -729,7 +727,7 @@
         </service>
         <service
             android:name=".service.AccountAuthenticatorService"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -740,7 +738,7 @@
         </service>
         <service
             android:name=".service.ContactsSyncAdapterService"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
@@ -754,7 +752,7 @@
         </service>
         <service android:name=".service.GenericForegroundService" />
         <service android:name=".gcm.FcmFetchService" />
-        <service android:name=".gcm.FcmReceiveService" >
+        <service android:name=".gcm.FcmReceiveService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -764,8 +762,8 @@
             android:name=".service.SmsListener"
             android:enabled="true"
             android:exported="true"
-            android:permission="android.permission.BROADCAST_SMS" >
-            <intent-filter android:priority="1001" >
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="1001">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
             <intent-filter>
@@ -774,7 +772,7 @@
         </receiver>
         <receiver
             android:name=".service.SmsDeliveryListener"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.thoughtcrime.securesms.services.MESSAGE_SENT" />
             </intent-filter>
@@ -783,8 +781,8 @@
             android:name=".service.MmsListener"
             android:enabled="true"
             android:exported="true"
-            android:permission="android.permission.BROADCAST_WAP_PUSH" >
-            <intent-filter android:priority="1001" >
+            android:permission="android.permission.BROADCAST_WAP_PUSH">
+            <intent-filter android:priority="1001">
                 <action android:name="android.provider.Telephony.WAP_PUSH_RECEIVED" />
 
                 <data android:mimeType="application/vnd.wap.mms-message" />
@@ -798,7 +796,7 @@
         <receiver
             android:name=".notifications.MarkReadReceiver"
             android:enabled="true"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="org.thoughtcrime.securesms.notifications.CLEAR" />
             </intent-filter>
@@ -806,7 +804,7 @@
         <receiver
             android:name=".notifications.RemoteReplyReceiver"
             android:enabled="true"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="org.thoughtcrime.securesms.notifications.WEAR_REPLY" />
             </intent-filter>
@@ -836,63 +834,63 @@
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true" >
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_provider_paths" />
         </provider>
 
-        <receiver android:name=".service.BootReceiver" >
+        <receiver android:name=".service.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="org.thoughtcrime.securesms.RESTART" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".service.DirectoryRefreshListener" >
+        <receiver android:name=".service.DirectoryRefreshListener">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".service.RotateSignedPreKeyListener" >
+        <receiver android:name=".service.RotateSignedPreKeyListener">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".service.RotateSenderCertificateListener" >
+        <receiver android:name=".service.RotateSenderCertificateListener">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".messageprocessingalarm.MessageProcessReceiver" >
+        <receiver android:name=".messageprocessingalarm.MessageProcessReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="org.thoughtcrime.securesms.action.PROCESS_MESSAGES" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".service.LocalBackupListener" >
+        <receiver android:name=".service.LocalBackupListener">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".service.PersistentConnectionBootListener" >
+        <receiver android:name=".service.PersistentConnectionBootListener">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".notifications.LocaleChangedReceiver" >
+        <receiver android:name=".notifications.LocaleChangedReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
         </receiver>
         <receiver android:name=".notifications.MessageNotifier$ReminderReceiver" />
-        <receiver android:name=".notifications.DeleteNotificationReceiver" >
+        <receiver android:name=".notifications.DeleteNotificationReceiver">
             <intent-filter>
                 <action android:name="org.thoughtcrime.securesms.DELETE_NOTIFICATION" />
             </intent-filter>
         </receiver>
         <receiver
             android:name=".service.PanicResponderListener"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="info.guardianproject.panic.action.TRIGGER" />
             </intent-filter>
@@ -917,7 +915,7 @@
             android:enabled="@bool/enable_alarm_manager" /> <!-- Probably don't need this one -->
         <receiver
             android:name=".jobmanager.BootReceiver"
-            android:enabled="true" >
+            android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

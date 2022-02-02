@@ -126,38 +126,48 @@ public class ContactAccessor {
     return context.getContentResolver().query(uri, projection, where, args, orderBy);
   }
 
-  public Double getContactDetailsForID(Context context, Integer rawContactId) {
+  public Double getContactDetailsForID(Context context, Integer recipient_id) {
     Double  trust_level = Double.valueOf(0f);
     Uri      uri        = ContactsContract.Data.CONTENT_URI;
     String   where      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.DATA1 + " = ?";
-    String[] args       = SqlUtil.buildArgs(CONTACT_MIME_TYPE, rawContactId);
-    Recipient recipient = Recipient.resolved(RecipientId.from(rawContactId));
-
+    String[] args       = SqlUtil.buildArgs(CONTACT_MIME_TYPE, recipient_id);
 
     Cursor cursor = context.getContentResolver().query(uri, null, where, args, null);
-
-    Log.d("debug_signal_contact", "getContactDetailsForID: " + recipient.getDisplayNameOrUsername(context)
-                         + "  getCount " + cursor.getCount()
-                         + "  rawContactId " + rawContactId
-                                  + "  getE164 " + recipient.getE164()
-    );
 
     if(cursor != null && cursor.moveToNext()) {
       trust_level = cursor.getDouble(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA2));
     }
 
-//    Cursor cursor_contact = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, null, null, null);
-//
-//    while(cursor_contact != null && cursor_contact.moveToNext()) {
-//      Log.d("debug_signal_contact", "getContactDetailsForID: Data table " + cursor_contact.getString(cursor_contact.getColumnIndex(ContactsContract.Data.MIMETYPE))
-//                           + "  data1 " +  cursor_contact.getString(cursor_contact.getColumnIndex(ContactsContract.Data.DATA1))
-//                           + "  data2 " +  cursor_contact.getString(cursor_contact.getColumnIndex(ContactsContract.Data.DATA2))
-//                           + "  DISPLAY_NAME " +  cursor_contact.getString(cursor_contact.getColumnIndex(ContactsContract.Data.DISPLAY_NAME))
-//                           + "  RAW_CONTACT_ID " +  cursor_contact.getString(cursor_contact.getColumnIndex(ContactsContract.Data.RAW_CONTACT_ID))
-//      );
-//    }
    cursor.close();
+
+    if(recipient_id != null) {
+      getLocalContactDetails(context, recipient_id);
+    }
    return trust_level;
+  }
+
+  public void getLocalContactDetails(Context context, int recipient_id) {
+    Uri      uri           = ContactsContract.Data.CONTENT_URI;
+    String   where         = ContactsContract.Data.RAW_CONTACT_ID + " = ?";
+    int      contactId     = getContactId(context, RecipientId.from(recipient_id));
+    int      rawContactId  = getRawContactId(context, contactId);
+    String[] args          = SqlUtil.buildArgs(rawContactId);
+
+    Cursor cursor = context.getContentResolver().query(uri,
+                                                       null,
+                                                       where,
+                                                       args,
+                                                       null);
+
+    while(cursor != null && cursor.moveToNext()) {
+      Log.d("debug_signal_contact", "getContactDetailsForID: Data table " + cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE))
+                                    + "  data1 " +  cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DATA1))
+                                    + "  data2 " +  cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DATA2))
+                                    + "  DISPLAY_NAME " +  cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME))
+                                    + "  RAW_CONTACT_ID " +  cursor.getString(cursor.getColumnIndex(ContactsContract.Data.RAW_CONTACT_ID))
+      );
+    }
+    cursor.close();
   }
 
   public int getRawContactId(Context context, int contactId)
@@ -194,7 +204,7 @@ public class ContactAccessor {
       cursor.close();
     }
 
-    return Integer.parseInt(contactId);
+    return contactId != null ? Integer.parseInt(contactId) : 0;
   }
 
   public void addOrUpdateContactData(Context context, Integer rawContactId, double trust_level) {

@@ -1765,7 +1765,7 @@ public class PushServiceSocket {
     ServiceConnectionHolder connectionHolder = (ServiceConnectionHolder) getRandom(serviceClients, random);
 
 //      Log.d(TAG, "Push service URL: " + connectionHolder.getUrl());
-//      Log.d(TAG, "Opening URL: " + String.format("%s%s", connectionHolder.getUrl(), urlFragment));
+      Log.d("debug_signal_contact", "Opening URL: " + String.format("%s%s", connectionHolder.getUrl(), urlFragment));
 
     Request.Builder request = new Request.Builder();
     request.url(String.format("%s%s", connectionHolder.getUrl(), urlFragment));
