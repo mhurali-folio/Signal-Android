@@ -70,4 +70,16 @@ public class ContactDetailModel {
   public PeepWorkInfo getPeepWorkInfo() {
     return peepWorkInfo;
   }
+
+  public ArrayList<PeepPhoneNumber> getPeepPhoneNumbers() {
+    return peepPhoneNumbers;
+  }
+
+  public ArrayList<PeepEmail> getPeepEmails() {
+    return peepEmails;
+  }
+
+  public ArrayList<PeepAddress> getPeepAddresses() {
+    return peepAddresses;
+  }
 }

@@ -6,7 +6,7 @@
     android:layout_height="fill_parent"
     android:layout_gravity="center"
     android:orientation="vertical"
-    android:paddingTop="10dp"
+    android:paddingTop="5dp"
     tools:context=".contacts.ContactDetailActivity">
 
     <TextView
@@ -36,12 +36,48 @@
         android:singleLine="false"
         android:textAppearance="@style/TextAppearance.Signal.Body1.Bold"
         android:textColor="@color/signal_text_secondary"
-        android:textSize="22dp"
+        android:textSize="20dp"
         android:textAlignment="center"
         android:visibility="invisible"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/peep_contact_detail_name"
         tools:ignore="RtlSymmetry" />
+
+    <LinearLayout
+        android:id="@+id/peep_contact_detail_phone_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/peep_contact_detail_organization"
+        />
+
+    <LinearLayout
+        android:id="@+id/peep_contact_detail_email_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/peep_contact_detail_phone_layout"
+        />
+
+    <LinearLayout
+        android:id="@+id/peep_contact_detail_address_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/peep_contact_detail_email_layout"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
