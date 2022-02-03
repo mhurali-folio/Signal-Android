@@ -2,8 +2,46 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_gravity="center"
+    android:orientation="vertical"
+    android:paddingTop="10dp"
     tools:context=".contacts.ContactDetailActivity">
+
+    <TextView
+        android:id="@+id/peep_contact_detail_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="12dp"
+        android:ellipsize="end"
+        android:paddingStart="4dp"
+        android:singleLine="true"
+        android:textAppearance="@style/TextAppearance.Signal.Body1.Bold"
+        android:textColor="@color/signal_text_secondary"
+        android:textSize="25dp"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="RtlSymmetry" />
+
+    <TextView
+        android:id="@+id/peep_contact_detail_organization"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="12dp"
+        android:ellipsize="end"
+        android:paddingStart="4dp"
+        android:singleLine="false"
+        android:textAppearance="@style/TextAppearance.Signal.Body1.Bold"
+        android:textColor="@color/signal_text_secondary"
+        android:textSize="22dp"
+        android:textAlignment="center"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/peep_contact_detail_name"
+        tools:ignore="RtlSymmetry" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

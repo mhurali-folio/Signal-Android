@@ -3870,6 +3870,9 @@
     <!-- NewConversationActivity -->
     <string name="NewConversationActivity__new_message">New message</string>
 
+    <!-- ContactDetaiilActivity -->
+    <string name="ContactDetaiilActivity__heading">Contact Details</string>
+
     <!-- PostCreationActivity -->
     <string name="PostCreationActivity__new_message">New Post</string>
     <string name="PostCreationActivity__input_hint">Type a message</string>

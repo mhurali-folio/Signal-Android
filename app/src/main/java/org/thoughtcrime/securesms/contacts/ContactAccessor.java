@@ -19,18 +19,15 @@ package org.thoughtcrime.securesms.contacts;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
@@ -139,14 +136,10 @@ public class ContactAccessor {
     }
 
    cursor.close();
-
-    if(recipient_id != null) {
-      getLocalContactDetails(context, recipient_id);
-    }
    return trust_level;
   }
 
-  public void getLocalContactDetails(Context context, int recipient_id) {
+  public ContactDetailModel getLocalContactDetails(Context context, int recipient_id) {
     Uri      uri           = ContactsContract.Data.CONTENT_URI;
     String   where         = ContactsContract.Data.RAW_CONTACT_ID + " = ?";
     int      contactId     = getContactId(context, RecipientId.from(recipient_id));
@@ -159,15 +152,52 @@ public class ContactAccessor {
                                                        args,
                                                        null);
 
+    ContactDetailModel contactDetailModel = new ContactDetailModel();
+
     while(cursor != null && cursor.moveToNext()) {
-      Log.d("debug_signal_contact", "getContactDetailsForID: Data table " + cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE))
-                                    + "  data1 " +  cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DATA1))
-                                    + "  data2 " +  cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DATA2))
-                                    + "  DISPLAY_NAME " +  cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME))
-                                    + "  RAW_CONTACT_ID " +  cursor.getString(cursor.getColumnIndex(ContactsContract.Data.RAW_CONTACT_ID))
-      );
+      handleDataForContactDetail(cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE)), cursor, contactDetailModel);
     }
     cursor.close();
+    return contactDetailModel;
+  }
+
+  private void handleDataForContactDetail(String mimeType, Cursor cursor, ContactDetailModel contactDetailModel) {
+    switch (mimeType) {
+      case CommonDataKinds.Phone.CONTENT_ITEM_TYPE: {
+        PeepPhoneNumber phoneNumber = new PeepPhoneNumber();
+        phoneNumber.number = cursor.getString(cursor.getColumnIndex(CommonDataKinds.Phone.NUMBER));
+        phoneNumber.type  = cursor.getInt(cursor.getColumnIndex(Phone.TYPE));
+        contactDetailModel.addPeepPhoneNumber(phoneNumber);
+        break;
+      }
+      case CommonDataKinds.Email.CONTENT_ITEM_TYPE: {
+        PeepEmail peepEmail = new PeepEmail();
+        peepEmail.email = cursor.getString(cursor.getColumnIndex(CommonDataKinds.Email.ADDRESS));
+        peepEmail.type  = cursor.getInt(cursor.getColumnIndex(CommonDataKinds.Email.TYPE));
+        contactDetailModel.addPeepEmails(peepEmail);
+        break;
+      }
+      case CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE: {
+        PeepAddress peepAddress = new PeepAddress();
+        peepAddress.address = cursor.getString(cursor.getColumnIndex(CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS));
+        peepAddress.type  = cursor.getInt(cursor.getColumnIndex(CommonDataKinds.StructuredPostal.TYPE));
+        contactDetailModel.addPeepAddress(peepAddress);
+        break;
+      }
+      case CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE: {
+        PeepStructuredName peepStructuredName = new PeepStructuredName();
+        peepStructuredName.name = cursor.getString(cursor.getColumnIndex(CommonDataKinds.StructuredName.DISPLAY_NAME));
+        contactDetailModel.setPeepStructuredName(peepStructuredName);
+        break;
+      }
+      case CommonDataKinds.Organization.CONTENT_ITEM_TYPE: {
+        PeepWorkInfo peepWorkInfo = new PeepWorkInfo();
+        peepWorkInfo.company = cursor.getString(cursor.getColumnIndex(CommonDataKinds.Organization.COMPANY));
+        peepWorkInfo.title = cursor.getString(cursor.getColumnIndex(CommonDataKinds.Organization.TITLE));
+        contactDetailModel.setPeepWorkInfo(peepWorkInfo);
+        break;
+      }
+    }
   }
 
   public int getRawContactId(Context context, int contactId)

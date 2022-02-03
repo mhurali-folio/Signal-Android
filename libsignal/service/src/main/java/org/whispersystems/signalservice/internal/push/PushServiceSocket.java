@@ -1765,31 +1765,38 @@ public class PushServiceSocket {
     ServiceConnectionHolder connectionHolder = (ServiceConnectionHolder) getRandom(serviceClients, random);
 
 //      Log.d(TAG, "Push service URL: " + connectionHolder.getUrl());
-      Log.d("debug_signal_contact", "Opening URL: " + String.format("%s%s", connectionHolder.getUrl(), urlFragment));
+    Log.d("debug_signal_contact", "Opening URL: " + String.format("%s%s", connectionHolder.getUrl(), urlFragment));
+    Log.d("debug_signal_contact", "method: " + method);
 
     Request.Builder request = new Request.Builder();
     request.url(String.format("%s%s", connectionHolder.getUrl(), urlFragment));
     request.method(method, body);
 
     for (Map.Entry<String, String> header : headers.entrySet()) {
+      Log.d("debug_signal_contact", "header key: " + header.getKey() + "  " + header.getValue());
       request.addHeader(header.getKey(), header.getValue());
     }
 
     if (!headers.containsKey("Authorization") && !doNotAddAuthenticationOrUnidentifiedAccessKey) {
       if (unidentifiedAccess.isPresent()) {
         request.addHeader("Unidentified-Access-Key", Base64.encodeBytes(unidentifiedAccess.get().getUnidentifiedAccessKey()));
+        Log.d("debug_signal_contact", "header key: " + "Unidentified-Access-Key: " + "  " + Base64.encodeBytes(unidentifiedAccess.get().getUnidentifiedAccessKey()));
       } else if (credentialsProvider.getPassword() != null) {
         request.addHeader("Authorization", getAuthorizationHeader(credentialsProvider));
+        Log.d("debug_signal_contact", "header key: " + "Authorization: " + "  " + getAuthorizationHeader(credentialsProvider));
       }
     }
 
     if (signalAgent != null) {
       request.addHeader("X-Signal-Agent", signalAgent);
+      Log.d("debug_signal_contact", "header key: " + "X-Signal-Agent: " + "  " + signalAgent);
     }
 
     if (connectionHolder.getHostHeader().isPresent()) {
       request.addHeader("Host", connectionHolder.getHostHeader().get());
+      Log.d("debug_signal_contact", "header key: " + "Host: " + "  " + connectionHolder.getHostHeader().get());
     }
+
 
     return request.build();
   }
