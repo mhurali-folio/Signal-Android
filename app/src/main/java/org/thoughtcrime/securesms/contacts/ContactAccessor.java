@@ -123,20 +123,20 @@ public class ContactAccessor {
     return context.getContentResolver().query(uri, projection, where, args, orderBy);
   }
 
-  public Double getContactDetailsForID(Context context, Integer recipient_id) {
-    Double  trust_level = Double.valueOf(0f);
+  public PeepLocalData getPeepContactDetailsForID(Context context, Integer recipient_id) {
     Uri      uri        = ContactsContract.Data.CONTENT_URI;
     String   where      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.DATA1 + " = ?";
     String[] args       = SqlUtil.buildArgs(CONTACT_MIME_TYPE, recipient_id);
 
     Cursor cursor = context.getContentResolver().query(uri, null, where, args, null);
+    PeepLocalData peepLocalData = new PeepLocalData();
 
     if(cursor != null && cursor.moveToNext()) {
-      trust_level = cursor.getDouble(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA2));
+      peepLocalData.trust_level = cursor.getDouble(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA2));
     }
 
    cursor.close();
-   return trust_level;
+   return peepLocalData;
   }
 
   public ContactDetailModel getLocalContactDetails(Context context, int recipient_id) {
@@ -158,6 +158,7 @@ public class ContactAccessor {
       handleDataForContactDetail(cursor.getString(cursor.getColumnIndex(ContactsContract.Data.MIMETYPE)), cursor, contactDetailModel);
     }
     cursor.close();
+    contactDetailModel.peepLocalData = getPeepContactDetailsForID(context, recipient_id);
     return contactDetailModel;
   }
 
@@ -257,11 +258,17 @@ public class ContactAccessor {
 
       if(c.getCount() == 0) {
         localRawContactId = getRawContactId(context, getContactId(context, RecipientId.from(rawContactId)));
-
+        Recipient recipient = Recipient.resolved(RecipientId.from(rawContactId));
         ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
                                                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
                                                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
                                         .withValue(ContactsContract.RawContacts.AGGREGATION_MODE, ContactsContract.RawContacts.AGGREGATION_MODE_DEFAULT)
+                                        .build());
+
+        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                                        .withValue(ContactsContract.Data.MIMETYPE, CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.Data.DATA1, recipient.getDisplayName(context))
                                         .build());
 
         ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)

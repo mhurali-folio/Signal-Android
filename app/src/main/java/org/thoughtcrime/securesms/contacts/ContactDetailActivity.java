@@ -15,7 +15,7 @@ import org.thoughtcrime.securesms.R;
 public class ContactDetailActivity extends AppCompatActivity {
   ContactDetailModel contactDetailModel;
 
-  TextView nameView, organizationView;
+  TextView nameView, organizationView, trustView;
   LinearLayout phoneLayout, emailLayout, addressLayout;
 
   @Override
@@ -32,22 +32,22 @@ public class ContactDetailActivity extends AppCompatActivity {
       contactDetailModel = contactAccessor.getLocalContactDetails(this, getIntent().getIntExtra("recipient_id", 0));
       if(contactDetailModel.getPeepStructuredName() != null) {
         nameView.setText(contactDetailModel.getPeepStructuredName().name);
-        nameView.setVisibility(View.VISIBLE);
       }
       if(contactDetailModel.getPeepWorkInfo() != null) {
         organizationView.setText(String.format("%s\n%s", contactDetailModel.getPeepWorkInfo().company, contactDetailModel.getPeepWorkInfo().title));
-        organizationView.setVisibility(View.VISIBLE);
       }
-      createDynamicViews();
+      this.createDynamicViews();
+      this.handlePeepLocalDataViews();
     }
   }
 
   private void initializeViews() {
-    nameView = findViewById(R.id.peep_contact_detail_name);
-    organizationView = findViewById(R.id.peep_contact_detail_organization);
-    phoneLayout = findViewById(R.id.peep_contact_detail_phone_layout);
-    emailLayout = findViewById(R.id.peep_contact_detail_email_layout);
-    addressLayout = findViewById(R.id.peep_contact_detail_address_layout);
+    nameView          = findViewById(R.id.peep_contact_detail_name);
+    organizationView  = findViewById(R.id.peep_contact_detail_organization);
+    phoneLayout       = findViewById(R.id.peep_contact_detail_phone_layout);
+    emailLayout       = findViewById(R.id.peep_contact_detail_email_layout);
+    addressLayout     = findViewById(R.id.peep_contact_detail_address_layout);
+    trustView         = findViewById(R.id.peep_contact_detail_trust_level);
   }
 
   private void createDynamicViews() {
@@ -58,7 +58,7 @@ public class ContactDetailActivity extends AppCompatActivity {
 
   private void addPhoneNumbersView() {
     LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                                                  LinearLayout.LayoutParams.WRAP_CONTENT);
+                                                                           LinearLayout.LayoutParams.WRAP_CONTENT);
     layoutParams.setMargins(0, 10, 0, 0);
 
     LinearLayout.LayoutParams titleLayoutParams = layoutParams;
@@ -74,13 +74,13 @@ public class ContactDetailActivity extends AppCompatActivity {
     phoneLayout.addView(phoneTitleView);
 
     for (PeepPhoneNumber peepPhoneNumber:
-          contactDetailModel.getPeepPhoneNumbers()) {
-          TextView textView = new TextView(this);
-          textView.setLayoutParams(layoutParams);
-          textView.setText(String.format("%s: %s",
-                                         getResources().getString(ContactsContract.CommonDataKinds.Phone.getTypeLabelResource(peepPhoneNumber.type)),
-                                         peepPhoneNumber.number));
-          phoneLayout.addView(textView);
+        contactDetailModel.getPeepPhoneNumbers()) {
+      TextView textView = new TextView(this);
+      textView.setLayoutParams(layoutParams);
+      textView.setText(String.format("%s: %s",
+                                     getResources().getString(ContactsContract.CommonDataKinds.Phone.getTypeLabelResource(peepPhoneNumber.type)),
+                                     peepPhoneNumber.number));
+      phoneLayout.addView(textView);
     }
   }
 
@@ -137,6 +137,12 @@ public class ContactDetailActivity extends AppCompatActivity {
                                      getResources().getString(ContactsContract.CommonDataKinds.StructuredPostal.getTypeLabelResource(peepAddress.type)),
                                      peepAddress.address));
       addressLayout.addView(textView);
+    }
+  }
+
+  private void handlePeepLocalDataViews() {
+    if(contactDetailModel.getPeepLocalData() != null) {
+      trustView.setText(String.format("%s: %s","Trust Level", String.format("%.1f", contactDetailModel.getPeepLocalData().trust_level)));
     }
   }
 

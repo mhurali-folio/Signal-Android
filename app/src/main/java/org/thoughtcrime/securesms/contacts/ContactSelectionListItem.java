@@ -160,8 +160,8 @@ public class ContactSelectionListItem extends ConstraintLayout implements Recipi
 
     ContactAccessor contactAccessor = ContactAccessor.getInstance();
     if(recipientId != null) {
-      Double trust_level = contactAccessor.getContactDetailsForID(getContext(), (int) recipientId.toLong());
-      this.trustLevelText.setText("Trust: " + String.format("%.1f", trust_level));
+      PeepLocalData peepLocalData = contactAccessor.getPeepContactDetailsForID(getContext(), (int) recipientId.toLong());
+      this.trustLevelText.setText("Trust: " + String.format("%.1f", peepLocalData.trust_level));
       this.trustLevelText.setVisibility(View.VISIBLE);
     }
   }

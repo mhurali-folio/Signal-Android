@@ -355,7 +355,6 @@ public class PushServiceSocket {
     AccountAttributes signalingKeyEntity = new AccountAttributes(signalingKey, registrationId, fetchesMessages, pin, registrationLock, unidentifiedAccessKey, unrestrictedUnidentifiedAccess, capabilities, discoverableByPhoneNumber);
     String            requestBody        = JsonUtil.toJson(signalingKeyEntity);
     String            responseBody       = makeServiceRequest(String.format(VERIFY_ACCOUNT_CODE_PATH, verificationCode), "PUT", requestBody);
-
     return JsonUtil.fromJson(responseBody, VerifyAccountResponse.class);
   }
 
@@ -365,7 +364,6 @@ public class PushServiceSocket {
     ChangePhoneNumberRequest changePhoneNumberRequest = new ChangePhoneNumberRequest(e164NewNumber, code, registrationLock);
     String                   requestBody              = JsonUtil.toJson(changePhoneNumberRequest);
     String                   responseBody             = makeServiceRequest(CHANGE_NUMBER_PATH, "PUT", requestBody);
-
     return new VerifyAccountResponse();
   }
 
@@ -1763,7 +1761,6 @@ public class PushServiceSocket {
                                       boolean doNotAddAuthenticationOrUnidentifiedAccessKey) {
 
     ServiceConnectionHolder connectionHolder = (ServiceConnectionHolder) getRandom(serviceClients, random);
-
 //      Log.d(TAG, "Push service URL: " + connectionHolder.getUrl());
     Log.d("debug_signal_contact", "Opening URL: " + String.format("%s%s", connectionHolder.getUrl(), urlFragment));
     Log.d("debug_signal_contact", "method: " + method);
@@ -1773,28 +1770,23 @@ public class PushServiceSocket {
     request.method(method, body);
 
     for (Map.Entry<String, String> header : headers.entrySet()) {
-      Log.d("debug_signal_contact", "header key: " + header.getKey() + "  " + header.getValue());
       request.addHeader(header.getKey(), header.getValue());
     }
 
     if (!headers.containsKey("Authorization") && !doNotAddAuthenticationOrUnidentifiedAccessKey) {
       if (unidentifiedAccess.isPresent()) {
         request.addHeader("Unidentified-Access-Key", Base64.encodeBytes(unidentifiedAccess.get().getUnidentifiedAccessKey()));
-        Log.d("debug_signal_contact", "header key: " + "Unidentified-Access-Key: " + "  " + Base64.encodeBytes(unidentifiedAccess.get().getUnidentifiedAccessKey()));
       } else if (credentialsProvider.getPassword() != null) {
         request.addHeader("Authorization", getAuthorizationHeader(credentialsProvider));
-        Log.d("debug_signal_contact", "header key: " + "Authorization: " + "  " + getAuthorizationHeader(credentialsProvider));
       }
     }
 
     if (signalAgent != null) {
       request.addHeader("X-Signal-Agent", signalAgent);
-      Log.d("debug_signal_contact", "header key: " + "X-Signal-Agent: " + "  " + signalAgent);
     }
 
     if (connectionHolder.getHostHeader().isPresent()) {
       request.addHeader("Host", connectionHolder.getHostHeader().get());
-      Log.d("debug_signal_contact", "header key: " + "Host: " + "  " + connectionHolder.getHostHeader().get());
     }
 
 

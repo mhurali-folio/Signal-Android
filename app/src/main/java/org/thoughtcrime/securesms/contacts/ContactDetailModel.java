@@ -27,12 +27,17 @@ class PeepWorkInfo {
   String title;
 }
 
+class PeepLocalData {
+  Double trust_level = Double.valueOf(0f);
+}
+
 public class ContactDetailModel {
   ArrayList<PeepPhoneNumber> peepPhoneNumbers;
   ArrayList<PeepAddress>     peepAddresses;
   ArrayList<PeepEmail>       peepEmails;
   PeepStructuredName         peepStructuredName;
   PeepWorkInfo               peepWorkInfo;
+  PeepLocalData              peepLocalData;
 
   public void addPeepPhoneNumber(PeepPhoneNumber phoneNumber) {
     if (peepPhoneNumbers == null) {
@@ -72,14 +77,27 @@ public class ContactDetailModel {
   }
 
   public ArrayList<PeepPhoneNumber> getPeepPhoneNumbers() {
+    if(peepPhoneNumbers == null) {
+      peepPhoneNumbers = new ArrayList<>();
+    }
     return peepPhoneNumbers;
   }
 
   public ArrayList<PeepEmail> getPeepEmails() {
+    if(peepEmails == null) {
+      peepEmails = new ArrayList<>();
+    }
     return peepEmails;
   }
 
   public ArrayList<PeepAddress> getPeepAddresses() {
+    if(peepAddresses == null) {
+      peepAddresses = new ArrayList<>();
+    }
     return peepAddresses;
+  }
+
+  public PeepLocalData getPeepLocalData() {
+    return peepLocalData;
   }
 }
