@@ -33,6 +33,8 @@ import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.thoughtcrime.securesms.BuildConfig;
+import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
@@ -142,7 +144,7 @@ public class ContactAccessor {
   public ContactDetailModel getLocalContactDetails(Context context, int recipient_id) {
     Uri      uri           = ContactsContract.Data.CONTENT_URI;
     String   where         = ContactsContract.Data.RAW_CONTACT_ID + " = ?";
-    int      contactId     = getContactId(context, RecipientId.from(recipient_id));
+    int      contactId     = getContactByPhoneNumber(context, RecipientId.from(recipient_id)).contactId;
     int      rawContactId  = getRawContactId(context, contactId);
     String[] args          = SqlUtil.buildArgs(rawContactId);
 
@@ -216,8 +218,12 @@ public class ContactAccessor {
     return rawContactId;
   }
 
-  public int getContactId(Context context, RecipientId recipientId) {
-    String contactId = null;
+  private class ContactDataHolder {
+    int contactId;
+    String contactName;
+  }
+
+  public ContactDataHolder getContactByPhoneNumber(Context context, RecipientId recipientId) {
     Recipient recipient = Recipient.resolved(recipientId);
     Uri contactURI = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(recipient.getE164().orNull()));
     String[] projection = new String[] {ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup._ID};
@@ -230,12 +236,15 @@ public class ContactAccessor {
             null,
             null);
 
+    ContactDataHolder contactDataHolder = new ContactDataHolder();
+
     if(cursor != null && cursor.moveToNext()) {
-      contactId   = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup._ID));
+      contactDataHolder.contactId = cursor.getInt(cursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup._ID));
+      contactDataHolder.contactName = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup.DISPLAY_NAME));
       cursor.close();
     }
 
-    return contactId != null ? Integer.parseInt(contactId) : 0;
+    return contactDataHolder != null ? contactDataHolder : null;
   }
 
   public void addOrUpdateContactData(Context context, Integer rawContactId, double trust_level) {
@@ -257,18 +266,17 @@ public class ContactAccessor {
       ArrayList<ContentProviderOperation> ops = new ArrayList();
 
       if(c.getCount() == 0) {
-        localRawContactId = getRawContactId(context, getContactId(context, RecipientId.from(rawContactId)));
-        Recipient recipient = Recipient.resolved(RecipientId.from(rawContactId));
+        ContactDataHolder contactDataHolder = getContactByPhoneNumber(context, RecipientId.from(rawContactId));
+        localRawContactId = getRawContactId(context, contactDataHolder.contactId);
         ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
-                                               .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
-                                               .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
-                                        .withValue(ContactsContract.RawContacts.AGGREGATION_MODE, ContactsContract.RawContacts.AGGREGATION_MODE_DEFAULT)
+                                               .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, context.getString(R.string.app_name))
+                                               .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, BuildConfig.APPLICATION_ID)
                                         .build());
 
         ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
                                         .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
                                         .withValue(ContactsContract.Data.MIMETYPE, CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
-                                        .withValue(ContactsContract.Data.DATA1, recipient.getDisplayName(context))
+                                        .withValue(ContactsContract.Data.DATA1, contactDataHolder.contactName)
                                         .build());
 
         ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
