@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".contacts.EditContactActivity"
+    android:paddingHorizontal="30dp">
+
+    <TextView
+        android:id="@+id/peepline_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/EditContactActivity__peepline_details_title"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="20dp"
+        android:textAppearance="@style/TextAppearance.Signal.Body1.Bold"
+        android:textColor="@color/signal_text_secondary"
+        android:textSize="24dp"
+        />
+
+    <TextView
+        android:id="@+id/peepline_bio_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/EditContactActivity__peepline_bio_title"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/peepline_details"
+        android:layout_marginTop="20dp"
+        android:textAppearance="@style/TextAppearance.Signal.Body1.Bold"
+        android:textColor="@color/signal_text_secondary"
+        android:textSize="20dp"
+        />
+
+    <EditText
+        android:id="@+id/bio_text_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        android:maxLines="3"
+        android:background="#CCCCCC"
+        android:layout_marginTop="5dp"
+        android:padding="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/peepline_bio_title"/>
+
+    <Button
+        android:id="@+id/save_peep_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/core_ultramarine"
+        android:textColor="@color/exo_white"
+        android:text="@string/EditContactActivity__peepline_save_button"
+        android:layout_marginTop="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bio_text_field"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

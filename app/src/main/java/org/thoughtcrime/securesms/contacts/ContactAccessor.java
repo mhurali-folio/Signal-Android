@@ -19,12 +19,15 @@ package org.thoughtcrime.securesms.contacts;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds;
@@ -307,6 +310,42 @@ public class ContactAccessor {
         c.close();
       }
 
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void createRawContact(Context context, String rawContactId, ContactDataHolder contactDataHolder, ContentValues contentValues) {
+    ArrayList<ContentProviderOperation> ops = new ArrayList();
+    try{
+      ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+                                      .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, context.getString(R.string.app_name))
+                                      .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, BuildConfig.APPLICATION_ID)
+                                      .build());
+
+      ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                                      .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                                      .withValue(ContactsContract.Data.MIMETYPE, CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                                      .withValue(ContactsContract.Data.DATA1, contactDataHolder.contactName)
+                                      .build());
+
+      ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                                      .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                                      .withValue(ContactsContract.Data.MIMETYPE, CONTACT_MIME_TYPE)
+                                      .withValue(ContactsContract.Data.DATA1, rawContactId)
+                                      .withValues(contentValues)
+                                      .build());
+
+      ContentProviderResult[] contentProviderResults = context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+
+      ArrayList<ContentProviderOperation> mergeOps = new ArrayList<>();
+      mergeOps.add(ContentProviderOperation.newUpdate(ContactsContract.AggregationExceptions.CONTENT_URI)
+                                           .withValue(ContactsContract.AggregationExceptions.TYPE, ContactsContract.AggregationExceptions.TYPE_KEEP_TOGETHER)
+                                           .withValue(ContactsContract.AggregationExceptions.RAW_CONTACT_ID1, contentProviderResults[0].uri.getLastPathSegment())
+                                           .withValue(ContactsContract.AggregationExceptions.RAW_CONTACT_ID2, getRawContactId(context, contactDataHolder.contactId))
+                                           .build());
+
+      context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, mergeOps);
     } catch (Exception e) {
       e.printStackTrace();
     }

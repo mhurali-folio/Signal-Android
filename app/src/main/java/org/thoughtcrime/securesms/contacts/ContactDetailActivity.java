@@ -2,6 +2,7 @@ package org.thoughtcrime.securesms.contacts;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -11,12 +12,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.components.registration.PulsingFloatingActionButton;
 
 public class ContactDetailActivity extends AppCompatActivity {
   ContactDetailModel contactDetailModel;
 
   TextView nameView, organizationView, trustView;
   LinearLayout phoneLayout, emailLayout, addressLayout;
+  PulsingFloatingActionButton editFab;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +42,16 @@ public class ContactDetailActivity extends AppCompatActivity {
       this.createDynamicViews();
       this.handlePeepLocalDataViews();
     }
+
+    editFab.setOnClickListener(l -> handleOnEditFabClick());
   }
+
+  private void handleOnEditFabClick() {
+    Intent intent = new Intent(this, EditContactActivity.class);
+    intent.putExtra("recipient_id", getIntent().getIntExtra("recipient_id", 0));
+    startActivity(intent);
+  }
+
 
   private void initializeViews() {
     nameView          = findViewById(R.id.peep_contact_detail_name);
@@ -48,6 +60,7 @@ public class ContactDetailActivity extends AppCompatActivity {
     emailLayout       = findViewById(R.id.peep_contact_detail_email_layout);
     addressLayout     = findViewById(R.id.peep_contact_detail_address_layout);
     trustView         = findViewById(R.id.peep_contact_detail_trust_level);
+    editFab           = findViewById(R.id.edit_fab);
   }
 
   private void createDynamicViews() {
