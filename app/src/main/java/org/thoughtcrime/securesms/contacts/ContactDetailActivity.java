@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -17,7 +18,7 @@ import org.thoughtcrime.securesms.components.registration.PulsingFloatingActionB
 public class ContactDetailActivity extends AppCompatActivity {
   ContactDetailModel contactDetailModel;
 
-  TextView nameView, organizationView, trustView;
+  TextView nameView, organizationView, trustView, bioView;
   LinearLayout phoneLayout, emailLayout, addressLayout;
   PulsingFloatingActionButton editFab;
 
@@ -61,6 +62,7 @@ public class ContactDetailActivity extends AppCompatActivity {
     addressLayout     = findViewById(R.id.peep_contact_detail_address_layout);
     trustView         = findViewById(R.id.peep_contact_detail_trust_level);
     editFab           = findViewById(R.id.edit_fab);
+    bioView           = findViewById(R.id.peep_contact_detail_bio);
   }
 
   private void createDynamicViews() {
@@ -156,6 +158,7 @@ public class ContactDetailActivity extends AppCompatActivity {
   private void handlePeepLocalDataViews() {
     if(contactDetailModel.getPeepLocalData() != null) {
       trustView.setText(String.format("%s: %s","Trust Level", String.format("%.1f", contactDetailModel.getPeepLocalData().trust_level)));
+      bioView.setText(String.format("%s: %s","Bio",contactDetailModel.getPeepLocalData().bio));
     }
   }
 

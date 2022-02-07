@@ -1,9 +1,11 @@
 package org.thoughtcrime.securesms.contacts;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.SeekBar;
@@ -126,7 +128,9 @@ public class ContactManagerActivity extends ContactSelectionActivity {
     SimpleTask.BackgroundTask backgroundTask = new SimpleTask.BackgroundTask(){
       @Override public Object run() {
           for (RecipientId recipient_id : ids) {
-            contactAccessor.addOrUpdateContactData(context, (int) recipient_id.toLong(), trustLevel);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(ContactsContract.Data.DATA2, trustLevel);
+            contactAccessor.addOrUpdateContactData(context, (int) recipient_id.toLong(), contentValues);
           }
           return null;
         }

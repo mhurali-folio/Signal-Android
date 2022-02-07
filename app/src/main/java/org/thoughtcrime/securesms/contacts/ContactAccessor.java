@@ -138,6 +138,7 @@ public class ContactAccessor {
 
     if(cursor != null && cursor.moveToNext()) {
       peepLocalData.trust_level = cursor.getDouble(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA2));
+      peepLocalData.bio         = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA3));
     }
 
    cursor.close();
@@ -250,12 +251,13 @@ public class ContactAccessor {
     return contactDataHolder != null ? contactDataHolder : null;
   }
 
-  public void addOrUpdateContactData(Context context, Integer rawContactId, double trust_level) {
+  public void addOrUpdateContactData(Context context, Integer rawContactId, ContentValues contentValues) {
     /**
      * We are using Data1 as reference to the recipient ID so that we can later query using it and mimetype.
+     *
+     * Data2 = Trust Level
+     * Data3 = Bio
      */
-    int localRawContactId = 0;
-
     try {
       String   whereMimeContact      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.DATA1 + " = ?";
       String[] argsMimeContact       = SqlUtil.buildArgs(CONTACT_MIME_TYPE, rawContactId);
@@ -266,56 +268,21 @@ public class ContactAccessor {
                                                     argsMimeContact,
                                                     null);
 
-      ArrayList<ContentProviderOperation> ops = new ArrayList();
-
       if(c.getCount() == 0) {
         ContactDataHolder contactDataHolder = getContactByPhoneNumber(context, RecipientId.from(rawContactId));
-        localRawContactId = getRawContactId(context, contactDataHolder.contactId);
-        ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
-                                               .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, context.getString(R.string.app_name))
-                                               .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, BuildConfig.APPLICATION_ID)
-                                        .build());
-
-        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                                        .withValue(ContactsContract.Data.MIMETYPE, CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
-                                        .withValue(ContactsContract.Data.DATA1, contactDataHolder.contactName)
-                                        .build());
-
-        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                                        .withValue(ContactsContract.Data.MIMETYPE, CONTACT_MIME_TYPE)
-                                        .withValue(ContactsContract.Data.DATA1, rawContactId)
-                                        .withValue(ContactsContract.Data.DATA2, trust_level)
-                                        .build());
+        createRawContact(context, rawContactId, contactDataHolder, contentValues);
       }
       else if(c != null && c.moveToNext()){
-        ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
-                                        .withSelection(whereMimeContact, argsMimeContact)
-                                        .withValue(ContactsContract.Data.MIMETYPE, CONTACT_MIME_TYPE)
-                                        .withValue(ContactsContract.Data.DATA2, trust_level)
-                                        .build());
+        updateRawContact(context, whereMimeContact, argsMimeContact, contentValues);
       }
 
-      final ContentProviderResult[] contentProviderResults = context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-
-      if (localRawContactId > 0) {
-        ArrayList<ContentProviderOperation> mergeOps = new ArrayList<>();
-        mergeOps.add(ContentProviderOperation.newUpdate(ContactsContract.AggregationExceptions.CONTENT_URI)
-                                             .withValue(ContactsContract.AggregationExceptions.TYPE, ContactsContract.AggregationExceptions.TYPE_KEEP_TOGETHER)
-                                             .withValue(ContactsContract.AggregationExceptions.RAW_CONTACT_ID1, contentProviderResults[0].uri.getLastPathSegment())
-                                             .withValue(ContactsContract.AggregationExceptions.RAW_CONTACT_ID2, localRawContactId)
-                                             .build());
-        context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, mergeOps);
-        c.close();
-      }
-
+      c.close();
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  private void createRawContact(Context context, String rawContactId, ContactDataHolder contactDataHolder, ContentValues contentValues) {
+  private void createRawContact(Context context, Integer rawContactId, ContactDataHolder contactDataHolder, ContentValues contentValues) {
     ArrayList<ContentProviderOperation> ops = new ArrayList();
     try{
       ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
@@ -346,6 +313,20 @@ public class ContactAccessor {
                                            .build());
 
       context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, mergeOps);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void updateRawContact(Context context, String whereMimeContact, String[] argsMimeContact, ContentValues contentValues) {
+    ArrayList<ContentProviderOperation> ops = new ArrayList();
+    try{
+      ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                                      .withSelection(whereMimeContact, argsMimeContact)
+                                      .withValue(ContactsContract.Data.MIMETYPE, CONTACT_MIME_TYPE)
+                                      .withValues(contentValues)
+                                      .build());
+      context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
     } catch (Exception e) {
       e.printStackTrace();
     }

@@ -4255,6 +4255,7 @@
     <string name="EditContactActivity__peepline_details_title">Peepline Details</string>
     <string name="EditContactActivity__peepline_bio_title">Bio:</string>
     <string name="EditContactActivity__peepline_save_button">Save</string>
+    <string name="peepline_details">Peepline details</string>
 
     <!-- EOF -->
 
