@@ -53,7 +53,6 @@ public class ContactDetailActivity extends AppCompatActivity {
     startActivity(intent);
   }
 
-
   private void initializeViews() {
     nameView          = findViewById(R.id.peep_contact_detail_name);
     organizationView  = findViewById(R.id.peep_contact_detail_organization);
@@ -157,8 +156,8 @@ public class ContactDetailActivity extends AppCompatActivity {
 
   private void handlePeepLocalDataViews() {
     if(contactDetailModel.getPeepLocalData() != null) {
-      trustView.setText(String.format("%s: %s","Trust Level", String.format("%.1f", contactDetailModel.getPeepLocalData().trust_level)));
-      bioView.setText(String.format("%s: %s","Bio",contactDetailModel.getPeepLocalData().bio));
+      trustView.setText(String.format("%s: %s","Trust Level", String.format("%.1f", contactDetailModel.getPeepLocalData().getTrust_level())));
+      bioView.setText(String.format("%s: %s","Bio",contactDetailModel.getPeepLocalData().getBio()));
     }
   }
 

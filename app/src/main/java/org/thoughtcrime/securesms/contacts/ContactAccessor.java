@@ -137,8 +137,8 @@ public class ContactAccessor {
     PeepLocalData peepLocalData = new PeepLocalData();
 
     if(cursor != null && cursor.moveToNext()) {
-      peepLocalData.trust_level = cursor.getDouble(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA2));
-      peepLocalData.bio         = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA3));
+      peepLocalData.setTrust_level(cursor.getDouble(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA2)));
+      peepLocalData.setBio(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA3)));
     }
 
    cursor.close();

@@ -56,7 +56,6 @@
         app:layout_constraintStart_toStartOf="@+id/contact_filter_edit_text"
         app:layout_constraintBottom_toTopOf="@+id/contact_selection_list_fragment"
         app:layout_constraintTop_toBottomOf="@+id/trustLevelHeading"
-
         />
 
     <fragment

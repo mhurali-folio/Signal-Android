@@ -28,8 +28,24 @@ class PeepWorkInfo {
 }
 
 class PeepLocalData {
-  Double trust_level = Double.valueOf(0f);
-  String bio = "";
+  private Double trust_level = Double.valueOf(0f);
+  private String bio = "";
+
+  public Double getTrust_level() {
+    return trust_level;
+  }
+
+  public String getBio() {
+    return bio;
+  }
+
+  public void setBio(String bio) {
+    this.bio = bio;
+  }
+
+  public void setTrust_level(Double trust_level) {
+    this.trust_level = trust_level;
+  }
 }
 
 public class ContactDetailModel {
