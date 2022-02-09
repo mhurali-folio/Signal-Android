@@ -4257,6 +4257,7 @@
     <string name="EditContactActivity__peepline_save_button">Save</string>
     <string name="peepline_details">Peepline details</string>
     <string name="trust_level">Trust Level</string>
+    <string name="intimacy_level">Intimacy Level</string>
 
     <!-- EOF -->
 

@@ -6,9 +6,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -18,7 +16,8 @@ import org.thoughtcrime.securesms.components.registration.PulsingFloatingActionB
 public class ContactDetailActivity extends AppCompatActivity {
   ContactDetailModel contactDetailModel;
 
-  TextView nameView, organizationView, trustView, bioView;
+  TextView nameView, organizationView, trustView, bioView,
+            intimacyView;
   LinearLayout phoneLayout, emailLayout, addressLayout;
   PulsingFloatingActionButton editFab;
 
@@ -62,6 +61,7 @@ public class ContactDetailActivity extends AppCompatActivity {
     trustView         = findViewById(R.id.peep_contact_detail_trust_level);
     editFab           = findViewById(R.id.edit_fab);
     bioView           = findViewById(R.id.peep_contact_detail_bio);
+    intimacyView      = findViewById(R.id.peep_contact_detail_intimacy_level);
   }
 
   private void createDynamicViews() {
@@ -156,8 +156,9 @@ public class ContactDetailActivity extends AppCompatActivity {
 
   private void handlePeepLocalDataViews() {
     if(contactDetailModel.getPeepLocalData() != null) {
-      trustView.setText(String.format("%s: %s","Trust Level", String.format("%.1f", contactDetailModel.getPeepLocalData().getTrust_level())));
+      trustView.setText(String.format("%s: %s",getResources().getString(R.string.trust_level), String.format("%.1f", contactDetailModel.getPeepLocalData().getTrust_level())));
       bioView.setText(String.format("%s: %s","Bio",contactDetailModel.getPeepLocalData().getBio()));
+      intimacyView.setText(String.format("%s: %s",getResources().getString(R.string.intimacy_level), String.format("%.1f", contactDetailModel.getPeepLocalData().getIntimacy_level())));
     }
   }
 

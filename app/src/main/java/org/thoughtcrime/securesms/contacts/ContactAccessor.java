@@ -62,9 +62,6 @@ import java.util.Set;
  */
 
 public class ContactAccessor {
-
-  public static String CONTACT_MIME_TYPE = "vnd.android.cursor.item/peepline";
-
   public static final String PUSH_COLUMN = "push";
 
   private static final String GIVEN_NAME  = ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME;
@@ -130,15 +127,16 @@ public class ContactAccessor {
 
   public PeepLocalData getPeepContactDetailsForID(Context context, Integer recipient_id) {
     Uri      uri        = ContactsContract.Data.CONTENT_URI;
-    String   where      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.DATA1 + " = ?";
-    String[] args       = SqlUtil.buildArgs(CONTACT_MIME_TYPE, recipient_id);
+    String   where      = ContactsContract.Data.MIMETYPE + " = ? AND " + PeepContactContract.RECIPIENT_ID + " = ?";
+    String[] args       = SqlUtil.buildArgs(PeepContactContract.CONTACT_MIME_TYPE, recipient_id);
 
     Cursor cursor = context.getContentResolver().query(uri, null, where, args, null);
     PeepLocalData peepLocalData = new PeepLocalData();
 
     if(cursor != null && cursor.moveToNext()) {
-      peepLocalData.setTrust_level(cursor.getDouble(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA2)));
-      peepLocalData.setBio(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Data.DATA3)));
+      peepLocalData.setTrust_level(cursor.getDouble(cursor.getColumnIndexOrThrow(PeepContactContract.TRUST_LEVEL)));
+      peepLocalData.setBio(cursor.getString(cursor.getColumnIndexOrThrow(PeepContactContract.BIO)));
+      peepLocalData.setIntimacy_level(cursor.getDouble(cursor.getColumnIndexOrThrow(PeepContactContract.INTIMACY_LEVEL)));
     }
 
    cursor.close();
@@ -253,14 +251,11 @@ public class ContactAccessor {
 
   public void addOrUpdateContactData(Context context, Integer rawContactId, ContentValues contentValues) {
     /**
-     * We are using Data1 as reference to the recipient ID so that we can later query using it and mimetype.
-     *
-     * Data2 = Trust Level
-     * Data3 = Bio
+     * We are using RECIPIENT_ID as reference to the recipient ID so that we can later query using it and mimetype.
      */
     try {
-      String   whereMimeContact      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.DATA1 + " = ?";
-      String[] argsMimeContact       = SqlUtil.buildArgs(CONTACT_MIME_TYPE, rawContactId);
+      String   whereMimeContact      = ContactsContract.Data.MIMETYPE + " = ? AND " + PeepContactContract.RECIPIENT_ID + " = ?";
+      String[] argsMimeContact       = SqlUtil.buildArgs(PeepContactContract.CONTACT_MIME_TYPE, rawContactId);
 
       Cursor c = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
                                                     null,
@@ -298,8 +293,8 @@ public class ContactAccessor {
 
       ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
                                       .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                                      .withValue(ContactsContract.Data.MIMETYPE, CONTACT_MIME_TYPE)
-                                      .withValue(ContactsContract.Data.DATA1, rawContactId)
+                                      .withValue(ContactsContract.Data.MIMETYPE, PeepContactContract.CONTACT_MIME_TYPE)
+                                      .withValue(PeepContactContract.RECIPIENT_ID, rawContactId)
                                       .withValues(contentValues)
                                       .build());
 
@@ -323,7 +318,7 @@ public class ContactAccessor {
     try{
       ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
                                       .withSelection(whereMimeContact, argsMimeContact)
-                                      .withValue(ContactsContract.Data.MIMETYPE, CONTACT_MIME_TYPE)
+                                      .withValue(ContactsContract.Data.MIMETYPE, PeepContactContract.CONTACT_MIME_TYPE)
                                       .withValues(contentValues)
                                       .build());
       context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);

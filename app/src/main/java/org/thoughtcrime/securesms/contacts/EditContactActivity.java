@@ -16,8 +16,8 @@ import org.thoughtcrime.securesms.R;
 public class EditContactActivity extends AppCompatActivity {
   EditText bioTextField;
   Button   saveButton;
-  TextView trustLevelHeading;
-  SeekBar  trustSeekBar;
+  TextView trustLevelHeading, intimacyLevelHeading;
+  SeekBar  trustSeekBar, intimacySeekBar;
 
   ContactDetailModel contactDetailModel;
   ContactAccessor contactAccessor;
@@ -41,7 +41,20 @@ public class EditContactActivity extends AppCompatActivity {
     saveButton.setOnClickListener(l -> onSaveButton());
     trustSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
       public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        trustLevelHeading.setText(getResources().getString(R.string.ContactManagerActivity__trust_level_heading) + " " + String.format("%.1f", convertSeekbarValue(progress)));
+        trustLevelHeading.setText(getResources().getString(R.string.trust_level) + " " + String.format("%.1f", convertSeekbarValue(progress)));
+      }
+
+      @Override public void onStartTrackingTouch(SeekBar seekBar) {
+
+      }
+
+      @Override public void onStopTrackingTouch(SeekBar seekBar) {
+
+      }
+    });
+    intimacySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+      public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        intimacyLevelHeading.setText(getResources().getString(R.string.intimacy_level) + " " + String.format("%.1f", convertSeekbarValue(progress)));
       }
 
       @Override public void onStartTrackingTouch(SeekBar seekBar) {
@@ -69,12 +82,15 @@ public class EditContactActivity extends AppCompatActivity {
     saveButton   = findViewById(R.id.save_peep_details);
     trustLevelHeading = findViewById(R.id.trust_level_heading);
     trustSeekBar = findViewById(R.id.trustSeekBar);
+    intimacyLevelHeading = findViewById(R.id.intimacy_level_heading);
+    intimacySeekBar = findViewById(R.id.intimacySeekBar);
   }
 
   private void onSaveButton() {
     ContentValues contentValues = new ContentValues();
-    contentValues.put(ContactsContract.Data.DATA2, convertSeekbarValue(trustSeekBar.getProgress()));
-    contentValues.put(ContactsContract.Data.DATA3, bioTextField.getText().toString());
+    contentValues.put(PeepContactContract.TRUST_LEVEL, convertSeekbarValue(trustSeekBar.getProgress()));
+    contentValues.put(PeepContactContract.BIO, bioTextField.getText().toString());
+    contentValues.put(PeepContactContract.INTIMACY_LEVEL, convertSeekbarValue(intimacySeekBar.getProgress()));
     contactAccessor.addOrUpdateContactData(this, getIntent().getIntExtra("recipient_id", 0), contentValues);
     onBackPressed();
   }
@@ -83,9 +99,14 @@ public class EditContactActivity extends AppCompatActivity {
     bioTextField.setText(contactDetailModel.getPeepLocalData().getBio());
 
     String parsedTrustLevel = String.format("%.1f", contactDetailModel.getPeepLocalData().getTrust_level());
-    int value = (int) Math.round(contactDetailModel.getPeepLocalData().getTrust_level() * 10);
+    int trust_value = (int) Math.round(contactDetailModel.getPeepLocalData().getTrust_level() * 10);
     trustLevelHeading.setText(getResources().getString(R.string.trust_level) + " " + parsedTrustLevel);
-    trustSeekBar.setProgress(value);
+    trustSeekBar.setProgress(trust_value);
+
+    String parsedIntimacyLevel = String.format("%.1f", contactDetailModel.getPeepLocalData().getIntimacy_level());
+    int intimacy_value = (int) Math.round(contactDetailModel.getPeepLocalData().getIntimacy_level() * 10);
+    intimacyLevelHeading.setText(getResources().getString(R.string.intimacy_level) + " " + parsedIntimacyLevel);
+    intimacySeekBar.setProgress(intimacy_value);
   }
 
   private double convertSeekbarValue(int value){

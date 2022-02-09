@@ -29,6 +29,7 @@ class PeepWorkInfo {
 
 class PeepLocalData {
   private Double trust_level = Double.valueOf(0f);
+  private Double intimacy_level = Double.valueOf(0f);
   private String bio = "";
 
   public Double getTrust_level() {
@@ -39,12 +40,20 @@ class PeepLocalData {
     return bio;
   }
 
+  public Double getIntimacy_level() {
+    return intimacy_level;
+  }
+
   public void setBio(String bio) {
     this.bio = bio;
   }
 
   public void setTrust_level(Double trust_level) {
     this.trust_level = trust_level;
+  }
+
+  public void setIntimacy_level(Double intimacy_level) {
+    this.intimacy_level = intimacy_level;
   }
 }
 
