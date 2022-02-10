@@ -17,7 +17,7 @@ public class ContactDetailActivity extends AppCompatActivity {
   ContactDetailModel contactDetailModel;
 
   TextView nameView, organizationView, trustView, bioView,
-            intimacyView;
+            intimacyView, notesView;
   LinearLayout phoneLayout, emailLayout, addressLayout;
   PulsingFloatingActionButton editFab;
 
@@ -62,6 +62,7 @@ public class ContactDetailActivity extends AppCompatActivity {
     editFab           = findViewById(R.id.edit_fab);
     bioView           = findViewById(R.id.peep_contact_detail_bio);
     intimacyView      = findViewById(R.id.peep_contact_detail_intimacy_level);
+    notesView         = findViewById(R.id.peep_contact_detail_notes);
   }
 
   private void createDynamicViews() {
@@ -157,8 +158,9 @@ public class ContactDetailActivity extends AppCompatActivity {
   private void handlePeepLocalDataViews() {
     if(contactDetailModel.getPeepLocalData() != null) {
       trustView.setText(String.format("%s: %s",getResources().getString(R.string.trust_level), String.format("%.1f", contactDetailModel.getPeepLocalData().getTrust_level())));
-      bioView.setText(String.format("%s: %s","Bio",contactDetailModel.getPeepLocalData().getBio()));
+      bioView.setText(String.format("%s:\n%s","Bio",contactDetailModel.getPeepLocalData().getBio()));
       intimacyView.setText(String.format("%s: %s",getResources().getString(R.string.intimacy_level), String.format("%.1f", contactDetailModel.getPeepLocalData().getIntimacy_level())));
+      notesView.setText(String.format("%s:\n%s","Notes",contactDetailModel.getPeepLocalData().getNotes()));
     }
   }
 

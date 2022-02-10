@@ -4258,6 +4258,7 @@
     <string name="peepline_details">Peepline details</string>
     <string name="trust_level">Trust Level</string>
     <string name="intimacy_level">Intimacy Level</string>
+    <string name="EditContactActivity__notes">Notes:</string>
 
     <!-- EOF -->
 

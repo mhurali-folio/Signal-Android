@@ -14,7 +14,7 @@ import android.widget.TextView;
 import org.thoughtcrime.securesms.R;
 
 public class EditContactActivity extends AppCompatActivity {
-  EditText bioTextField;
+  EditText bioTextField, notesTextField;
   Button   saveButton;
   TextView trustLevelHeading, intimacyLevelHeading;
   SeekBar  trustSeekBar, intimacySeekBar;
@@ -78,12 +78,13 @@ public class EditContactActivity extends AppCompatActivity {
   }
 
   private void initializeViews() {
-    bioTextField = findViewById(R.id.bio_text_field);
-    saveButton   = findViewById(R.id.save_peep_details);
-    trustLevelHeading = findViewById(R.id.trust_level_heading);
-    trustSeekBar = findViewById(R.id.trustSeekBar);
+    bioTextField         = findViewById(R.id.bio_text_field);
+    saveButton           = findViewById(R.id.save_peep_details);
+    trustLevelHeading    = findViewById(R.id.trust_level_heading);
+    trustSeekBar         = findViewById(R.id.trustSeekBar);
     intimacyLevelHeading = findViewById(R.id.intimacy_level_heading);
-    intimacySeekBar = findViewById(R.id.intimacySeekBar);
+    intimacySeekBar      = findViewById(R.id.intimacySeekBar);
+    notesTextField       = findViewById(R.id.notes_text_field);
   }
 
   private void onSaveButton() {
@@ -91,6 +92,7 @@ public class EditContactActivity extends AppCompatActivity {
     contentValues.put(PeepContactContract.TRUST_LEVEL, convertSeekbarValue(trustSeekBar.getProgress()));
     contentValues.put(PeepContactContract.BIO, bioTextField.getText().toString());
     contentValues.put(PeepContactContract.INTIMACY_LEVEL, convertSeekbarValue(intimacySeekBar.getProgress()));
+    contentValues.put(PeepContactContract.NOTES, notesTextField.getText().toString());
     contactAccessor.addOrUpdateContactData(this, getIntent().getIntExtra("recipient_id", 0), contentValues);
     onBackPressed();
   }

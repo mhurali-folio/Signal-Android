@@ -45,7 +45,36 @@
         android:layout_marginTop="5dp"
         android:padding="10dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/peepline_bio_title"/>
+        app:layout_constraintTop_toBottomOf="@id/peepline_bio_title"
+        />
+
+    <TextView
+        android:id="@+id/peepline_notes_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/EditContactActivity__notes"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bio_text_field"
+        android:layout_marginTop="20dp"
+        android:textAppearance="@style/TextAppearance.Signal.Body1.Bold"
+        android:textColor="@color/signal_text_secondary"
+        android:textSize="20dp"
+        />
+
+    <EditText
+        android:id="@+id/notes_text_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        android:maxLines="3"
+        android:background="#CCCCCC"
+        android:layout_marginTop="5dp"
+        android:padding="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/peepline_notes_title"
+        />
 
     <TextView
         android:id="@+id/trust_level_heading"
@@ -57,7 +86,7 @@
         android:textAppearance="@style/TextAppearance.Signal.Body2"
         android:textColor="@color/signal_text_secondary"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bio_text_field"
+        app:layout_constraintTop_toBottomOf="@id/notes_text_field"
         android:text="@string/trust_level"
         android:layout_marginVertical="12dp"
         tools:ignore="RtlSymmetry"/>

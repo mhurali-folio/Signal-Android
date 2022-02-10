@@ -137,6 +137,7 @@ public class ContactAccessor {
       peepLocalData.setTrust_level(cursor.getDouble(cursor.getColumnIndexOrThrow(PeepContactContract.TRUST_LEVEL)));
       peepLocalData.setBio(cursor.getString(cursor.getColumnIndexOrThrow(PeepContactContract.BIO)));
       peepLocalData.setIntimacy_level(cursor.getDouble(cursor.getColumnIndexOrThrow(PeepContactContract.INTIMACY_LEVEL)));
+      peepLocalData.setNotes(cursor.getString(cursor.getColumnIndexOrThrow(PeepContactContract.NOTES)));
     }
 
    cursor.close();
@@ -243,6 +244,13 @@ public class ContactAccessor {
     if(cursor != null && cursor.moveToNext()) {
       contactDataHolder.contactId = cursor.getInt(cursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup._ID));
       contactDataHolder.contactName = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup.DISPLAY_NAME));
+      /**
+       * It is possible if the contact is not saved on the device, and user has started a conversation
+       * by searching the phone number on the peepline.
+       */
+      if(contactDataHolder.contactName == null) {
+        contactDataHolder.contactName = recipient.getDisplayName(context);
+      }
       cursor.close();
     }
 
