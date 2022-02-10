@@ -90,9 +90,9 @@ public class EditContactActivity extends AppCompatActivity {
   private void onSaveButton() {
     ContentValues contentValues = new ContentValues();
     contentValues.put(PeepContactContract.TRUST_LEVEL, convertSeekbarValue(trustSeekBar.getProgress()));
-    contentValues.put(PeepContactContract.BIO, bioTextField.getText().toString());
+//    contentValues.put(PeepContactContract.BIO, bioTextField.getText().toString());
     contentValues.put(PeepContactContract.INTIMACY_LEVEL, convertSeekbarValue(intimacySeekBar.getProgress()));
-    contentValues.put(PeepContactContract.NOTES, notesTextField.getText().toString());
+//    contentValues.put(PeepContactContract.NOTES, notesTextField.getText().toString());
     contactAccessor.addOrUpdateContactData(this, getIntent().getIntExtra("recipient_id", 0), contentValues);
     onBackPressed();
   }
