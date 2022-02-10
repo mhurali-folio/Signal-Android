@@ -86,7 +86,7 @@ public class ContactDetailActivity extends AppCompatActivity {
     addPhoneNumbersView();
     addEmailsView();
     addAddressView();
-    addSameGroupsView();
+    addCommonGroupsView();
   }
 
   private void addPhoneNumbersView() {
@@ -173,7 +173,7 @@ public class ContactDetailActivity extends AppCompatActivity {
     }
   }
 
-  private void addSameGroupsView() {
+  private void addCommonGroupsView() {
     LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                                                                            LinearLayout.LayoutParams.WRAP_CONTENT);
     layoutParams.setMargins(0, 10, 0, 0);
