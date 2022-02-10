@@ -6,20 +6,33 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.annimon.stream.Stream;
+
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.registration.PulsingFloatingActionButton;
+import org.thoughtcrime.securesms.database.GroupDatabase;
+import org.thoughtcrime.securesms.database.SignalDatabase;
+import org.thoughtcrime.securesms.recipients.RecipientId;
+
+import java.util.List;
+
 
 public class ContactDetailActivity extends AppCompatActivity {
+  private static final String RECIPIENT_ID_INTENT_EXTRA = "recipient_id";
+
   ContactDetailModel contactDetailModel;
 
   TextView nameView, organizationView, trustView, bioView,
             intimacyView, notesView;
-  LinearLayout phoneLayout, emailLayout, addressLayout;
+  LinearLayout phoneLayout, emailLayout, addressLayout, groupsLayout;
   PulsingFloatingActionButton editFab;
+
+  RecipientId recipientId;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +44,9 @@ public class ContactDetailActivity extends AppCompatActivity {
     this.initializeViews();
 
     ContactAccessor contactAccessor = ContactAccessor.getInstance();
-    if(getIntent().hasExtra("recipient_id")) {
-      contactDetailModel = contactAccessor.getLocalContactDetails(this, getIntent().getIntExtra("recipient_id", 0));
+    if(getIntent().hasExtra(RECIPIENT_ID_INTENT_EXTRA)) {
+      recipientId = RecipientId.from(getIntent().getIntExtra(RECIPIENT_ID_INTENT_EXTRA, 0));
+      contactDetailModel = contactAccessor.getLocalContactDetails(this, getIntent().getIntExtra(RECIPIENT_ID_INTENT_EXTRA, 0));
       if(contactDetailModel.getPeepStructuredName() != null) {
         nameView.setText(contactDetailModel.getPeepStructuredName().name);
       }
@@ -44,11 +58,13 @@ public class ContactDetailActivity extends AppCompatActivity {
     }
 
     editFab.setOnClickListener(l -> handleOnEditFabClick());
+
+    getGroupIncludedGroups();
   }
 
   private void handleOnEditFabClick() {
     Intent intent = new Intent(this, EditContactActivity.class);
-    intent.putExtra("recipient_id", getIntent().getIntExtra("recipient_id", 0));
+    intent.putExtra(RECIPIENT_ID_INTENT_EXTRA, getIntent().getIntExtra(RECIPIENT_ID_INTENT_EXTRA, 0));
     startActivity(intent);
   }
 
@@ -63,12 +79,14 @@ public class ContactDetailActivity extends AppCompatActivity {
     bioView           = findViewById(R.id.peep_contact_detail_bio);
     intimacyView      = findViewById(R.id.peep_contact_detail_intimacy_level);
     notesView         = findViewById(R.id.peep_contact_detail_notes);
+    groupsLayout      = findViewById(R.id.peep_contact_detail_groups_layout);
   }
 
   private void createDynamicViews() {
     addPhoneNumbersView();
     addEmailsView();
     addAddressView();
+    addSameGroupsView();
   }
 
   private void addPhoneNumbersView() {
@@ -155,6 +173,33 @@ public class ContactDetailActivity extends AppCompatActivity {
     }
   }
 
+  private void addSameGroupsView() {
+    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                                           LinearLayout.LayoutParams.WRAP_CONTENT);
+    layoutParams.setMargins(0, 10, 0, 0);
+
+    LinearLayout.LayoutParams titleLayoutParams = layoutParams;
+    titleLayoutParams.setMargins(0, 10, 0, 0);
+
+    TextView groupTitleView = new TextView(this);
+    groupTitleView.setLayoutParams(titleLayoutParams);
+    groupTitleView.setText("Groups In Common:");
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      groupTitleView.setTextAppearance(R.style.TextAppearance_Signal_Body1_Bold);
+    }
+    groupTitleView.setTextSize(20);
+    groupsLayout.addView(groupTitleView);
+
+    for (GroupDatabase.GroupRecord record:
+        getGroupIncludedGroups()) {
+      TextView textView = new TextView(this);
+      textView.setLayoutParams(layoutParams);
+      textView.setText(record.getTitle());
+      groupsLayout.addView(textView);
+    }
+  }
+
+
   private void handlePeepLocalDataViews() {
     if(contactDetailModel.getPeepLocalData() != null) {
       trustView.setText(String.format("%s: %s",getResources().getString(R.string.trust_level), String.format("%.1f", contactDetailModel.getPeepLocalData().getTrust_level())));
@@ -162,6 +207,13 @@ public class ContactDetailActivity extends AppCompatActivity {
       intimacyView.setText(String.format("%s: %s",getResources().getString(R.string.intimacy_level), String.format("%.1f", contactDetailModel.getPeepLocalData().getIntimacy_level())));
       notesView.setText(String.format("%s:\n%s","Notes",contactDetailModel.getPeepLocalData().getNotes()));
     }
+  }
+
+  private List<GroupDatabase.GroupRecord> getGroupIncludedGroups() {
+    GroupDatabase                   groupDatabase = SignalDatabase.groups();
+    List<GroupDatabase.GroupRecord> groupRecords  = groupDatabase.getGroupsContainingMember(recipientId, false);
+
+    return groupRecords;
   }
 
   @Override

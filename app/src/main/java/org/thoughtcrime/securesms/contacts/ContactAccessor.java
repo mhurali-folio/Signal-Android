@@ -34,20 +34,37 @@ import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
+
+import com.annimon.stream.Stream;
 
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.database.IdentityDatabase;
+import org.thoughtcrime.securesms.database.SignalDatabase;
+import org.thoughtcrime.securesms.database.model.IdentityRecord;
+import org.thoughtcrime.securesms.database.model.IdentityStoreRecord;
+import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.SqlUtil;
+import org.whispersystems.libsignal.util.guava.Optional;
+import org.whispersystems.signalservice.api.messages.multidevice.DeviceInfo;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * This class was originally a layer of indirection between
@@ -164,7 +181,29 @@ public class ContactAccessor {
     }
     cursor.close();
     contactDetailModel.peepLocalData = getPeepContactDetailsForID(context, recipient_id);
+    Recipient                    recipient = Recipient.resolved(RecipientId.from(recipient_id));
+//    IdentityDatabase    identityDatabase = SignalDatabase.identities();
+//    IdentityStoreRecord record           = identityDatabase.getIdentityStoreRecord(recipient.getAci().toString());
+//    if(record != null)
+//    Log.d("getLocalContactDetails", "getLocalContactDetails: "
+//                                    + " time " + record.getTimestamp()
+//                                    + " getDate " + getDate(record.getTimestamp())
+//                                    + " name " + recipient.getDisplayName(context)
+//                                    + " addressName " + record.getAddressName()
+//    );
+
     return contactDetailModel;
+  }
+
+  private String getDate(long time) {
+//    SimpleDateFormat formatter = new SimpleDateFormat("dd-mm-yyyy hh:mm a");
+//    Date timeD = new Date(time);
+//    return formatter.format(timeD);
+    Calendar c = Calendar.getInstance();
+    c.setTimeInMillis(time);
+    Date d = c.getTime();
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    return sdf.format(d);
   }
 
   private void handleDataForContactDetail(String mimeType, Cursor cursor, ContactDetailModel contactDetailModel) {
