@@ -30,7 +30,7 @@ class PeepWorkInfo {
 class PeepLocalData {
   private Double trust_level = Double.valueOf(0f);
   private Double intimacy_level = Double.valueOf(0f);
-  private String bio = "", notes = "";
+  private String bio = "", notes = "", dateWeMet;
 
   public Double getTrust_level() {
     return trust_level;
@@ -48,6 +48,10 @@ class PeepLocalData {
     return notes;
   }
 
+  public String getDateWeMet() {
+    return dateWeMet;
+  }
+
   public void setBio(String bio) {
     this.bio = bio;
   }
@@ -62,6 +66,10 @@ class PeepLocalData {
 
   public void setNotes(String notes) {
     this.notes = notes;
+  }
+
+  public void setDateWeMet(String dateWeMet) {
+    this.dateWeMet = dateWeMet;
   }
 }
 

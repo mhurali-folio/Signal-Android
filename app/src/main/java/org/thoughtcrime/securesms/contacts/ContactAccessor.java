@@ -152,9 +152,10 @@ public class ContactAccessor {
 
     if(cursor != null && cursor.moveToNext()) {
       peepLocalData.setTrust_level(cursor.getDouble(cursor.getColumnIndexOrThrow(PeepContactContract.TRUST_LEVEL)));
-      peepLocalData.setBio(cursor.getString(cursor.getColumnIndexOrThrow(PeepContactContract.BIO)));
+      peepLocalData.setBio(cursor.getString(cursor.getColumnIndexOrThrow(PeepContactContract.ABOUT)));
       peepLocalData.setIntimacy_level(cursor.getDouble(cursor.getColumnIndexOrThrow(PeepContactContract.INTIMACY_LEVEL)));
       peepLocalData.setNotes(cursor.getString(cursor.getColumnIndexOrThrow(PeepContactContract.NOTES)));
+      peepLocalData.setDateWeMet(cursor.getString(cursor.getColumnIndexOrThrow(PeepContactContract.DATE_WE_MET)));
     }
 
    cursor.close();

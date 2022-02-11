@@ -4253,12 +4253,14 @@
     <string name="ContactManagerActivity__trust_level_heading">Trust Level:</string>
     <string name="EditContactActivity__edit_details">Edit Contact Details</string>
     <string name="EditContactActivity__peepline_details_title">Peepline Details</string>
-    <string name="EditContactActivity__peepline_bio_title">Bio:</string>
+    <string name="EditContactActivity__peepline_bio_title">About:</string>
     <string name="EditContactActivity__peepline_save_button">Save</string>
     <string name="peepline_details">Peepline details</string>
     <string name="trust_level">Trust Level</string>
     <string name="intimacy_level">Intimacy Level</string>
     <string name="EditContactActivity__notes">Notes:</string>
+    <string name="select_date">Select Date</string>
+    <string name="date_we_met">Date We Met</string>
 
     <!-- EOF -->
 

@@ -28,7 +28,7 @@ public class ContactDetailActivity extends AppCompatActivity {
   ContactDetailModel contactDetailModel;
 
   TextView nameView, organizationView, trustView, bioView,
-            intimacyView, notesView;
+            intimacyView, notesView, dateWeMetView;
   LinearLayout phoneLayout, emailLayout, addressLayout, groupsLayout;
   PulsingFloatingActionButton editFab;
 
@@ -80,6 +80,7 @@ public class ContactDetailActivity extends AppCompatActivity {
     intimacyView      = findViewById(R.id.peep_contact_detail_intimacy_level);
     notesView         = findViewById(R.id.peep_contact_detail_notes);
     groupsLayout      = findViewById(R.id.peep_contact_detail_groups_layout);
+    dateWeMetView     = findViewById(R.id.peep_contact_date_we_met);
   }
 
   private void createDynamicViews() {
@@ -199,20 +200,22 @@ public class ContactDetailActivity extends AppCompatActivity {
     }
   }
 
-
   private void handlePeepLocalDataViews() {
     if(contactDetailModel.getPeepLocalData() != null) {
-      trustView.setText(String.format("%s: %s",getResources().getString(R.string.trust_level), String.format("%.1f", contactDetailModel.getPeepLocalData().getTrust_level())));
-      bioView.setText(String.format("%s:\n%s","Bio",contactDetailModel.getPeepLocalData().getBio()));
-      intimacyView.setText(String.format("%s: %s",getResources().getString(R.string.intimacy_level), String.format("%.1f", contactDetailModel.getPeepLocalData().getIntimacy_level())));
-      notesView.setText(String.format("%s:\n%s","Notes",contactDetailModel.getPeepLocalData().getNotes()));
+      trustView.setText(String.format("%s: %s",getResources().getString(R.string.trust_level),
+                                      String.format("%.1f", contactDetailModel.getPeepLocalData().getTrust_level())));
+      bioView.setText(String.format("%s\n%s",getResources().getString(R.string.EditContactActivity__peepline_bio_title),
+                                    contactDetailModel.getPeepLocalData().getBio()));
+      intimacyView.setText(String.format("%s: %s",getResources().getString(R.string.intimacy_level),
+                                         String.format("%.1f", contactDetailModel.getPeepLocalData().getIntimacy_level())));
+      notesView.setText(String.format("%s:\n%s","Notes", contactDetailModel.getPeepLocalData().getNotes()));
+      dateWeMetView.setText(String.format("%s: %s", getResources().getString(R.string.date_we_met), contactDetailModel.getPeepLocalData().getDateWeMet()));
     }
   }
 
   private List<GroupDatabase.GroupRecord> getGroupIncludedGroups() {
     GroupDatabase                   groupDatabase = SignalDatabase.groups();
     List<GroupDatabase.GroupRecord> groupRecords  = groupDatabase.getGroupsContainingMember(recipientId, false);
-
     return groupRecords;
   }
 

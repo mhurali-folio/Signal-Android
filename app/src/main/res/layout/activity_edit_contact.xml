@@ -25,7 +25,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/EditContactActivity__peepline_bio_title"
-        android:visibility="invisible"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/peepline_details"
         android:layout_marginTop="20dp"
@@ -42,7 +41,6 @@
         android:gravity="start|top"
         android:inputType="textMultiLine"
         android:maxLines="3"
-        android:visibility="invisible"
         android:background="#CCCCCC"
         android:layout_marginTop="5dp"
         android:padding="10dp"
@@ -55,7 +53,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/EditContactActivity__notes"
-        android:visibility="invisible"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bio_text_field"
         android:layout_marginTop="20dp"
@@ -71,7 +68,6 @@
         android:ems="10"
         android:gravity="start|top"
         android:inputType="textMultiLine"
-        android:visibility="invisible"
         android:maxLines="3"
         android:background="#CCCCCC"
         android:layout_marginTop="5dp"
@@ -136,6 +132,33 @@
         app:layout_constraintTop_toBottomOf="@+id/intimacy_level_heading"
         />
 
+    <TextView
+        android:id="@+id/date_we_met_heading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:paddingStart="4dp"
+        android:singleLine="true"
+        android:textAppearance="@style/TextAppearance.Signal.Body2"
+        android:textColor="@color/signal_text_secondary"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/intimacySeekBar"
+        android:text="@string/date_we_met"
+        android:layout_marginVertical="12dp"
+        tools:ignore="RtlSymmetry"/>
+
+    <Button
+        android:id="@+id/date_we_met_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/green_100"
+        android:textColor="@color/core_ultramarine"
+        android:text="@string/select_date"
+        android:layout_marginTop="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/date_we_met_heading"/>
+
     <Button
         android:id="@+id/save_peep_details"
         android:layout_width="wrap_content"
@@ -146,5 +169,5 @@
         android:layout_marginTop="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/intimacySeekBar"/>
+        app:layout_constraintTop_toBottomOf="@id/date_we_met_button"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
