@@ -156,6 +156,7 @@ public class ContactAccessor {
       peepLocalData.setIntimacy_level(cursor.getDouble(cursor.getColumnIndexOrThrow(PeepContactContract.INTIMACY_LEVEL)));
       peepLocalData.setNotes(cursor.getString(cursor.getColumnIndexOrThrow(PeepContactContract.NOTES)));
       peepLocalData.setDateWeMet(cursor.getString(cursor.getColumnIndexOrThrow(PeepContactContract.DATE_WE_MET)));
+      peepLocalData.setTags(cursor.getString(cursor.getColumnIndexOrThrow(PeepContactContract.TAGS)));
     }
 
    cursor.close();

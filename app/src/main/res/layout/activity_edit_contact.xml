@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".contacts.EditContactActivity"
-    android:paddingHorizontal="30dp">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingHorizontal="30dp"
+    tools:context=".contacts.EditContactActivity">
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".contacts.EditContactActivity">
 
     <TextView
         android:id="@+id/peepline_details"
@@ -41,7 +45,7 @@
         android:gravity="start|top"
         android:inputType="textMultiLine"
         android:maxLines="3"
-        android:background="#CCCCCC"
+        android:background="#f3f3f3"
         android:layout_marginTop="5dp"
         android:padding="10dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -69,7 +73,7 @@
         android:gravity="start|top"
         android:inputType="textMultiLine"
         android:maxLines="3"
-        android:background="#CCCCCC"
+        android:background="#f3f3f3"
         android:layout_marginTop="5dp"
         android:padding="10dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -155,9 +159,37 @@
         android:textColor="@color/core_ultramarine"
         android:text="@string/select_date"
         android:layout_marginTop="20dp"
+        android:paddingHorizontal="10dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/date_we_met_heading"/>
+
+    <EditText
+        android:id="@+id/tags_text_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="start|top"
+        android:background="#f3f3f3"
+        android:layout_marginTop="15dp"
+        android:padding="10dp"
+        android:inputType="text"
+        android:hint="@string/tags"
+        android:lines="1"
+        android:imeOptions="actionDone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/date_we_met_button"
+        />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/tags_chips_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tags_text_field"
+        >
+    </com.google.android.material.chip.ChipGroup>
 
     <Button
         android:id="@+id/save_peep_details"
@@ -169,5 +201,7 @@
         android:layout_marginTop="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/date_we_met_button"/>
+        app:layout_constraintTop_toBottomOf="@id/tags_chips_group"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -8,10 +8,13 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.annimon.stream.Stream;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.registration.PulsingFloatingActionButton;
@@ -31,6 +34,7 @@ public class ContactDetailActivity extends AppCompatActivity {
             intimacyView, notesView, dateWeMetView;
   LinearLayout phoneLayout, emailLayout, addressLayout, groupsLayout;
   PulsingFloatingActionButton editFab;
+  ChipGroup tagsChipGroup;
 
   RecipientId recipientId;
 
@@ -81,6 +85,7 @@ public class ContactDetailActivity extends AppCompatActivity {
     notesView         = findViewById(R.id.peep_contact_detail_notes);
     groupsLayout      = findViewById(R.id.peep_contact_detail_groups_layout);
     dateWeMetView     = findViewById(R.id.peep_contact_date_we_met);
+    tagsChipGroup     = findViewById(R.id.tags_chips_group);
   }
 
   private void createDynamicViews() {
@@ -210,6 +215,18 @@ public class ContactDetailActivity extends AppCompatActivity {
                                          String.format("%.1f", contactDetailModel.getPeepLocalData().getIntimacy_level())));
       notesView.setText(String.format("%s:\n%s","Notes", contactDetailModel.getPeepLocalData().getNotes()));
       dateWeMetView.setText(String.format("%s: %s", getResources().getString(R.string.date_we_met), contactDetailModel.getPeepLocalData().getDateWeMet()));
+
+      if(contactDetailModel.peepLocalData.getTags() != null) {
+        updateTagsChips(contactDetailModel.peepLocalData.getTags());
+      }
+    }
+  }
+
+  private void updateTagsChips(String tags) {
+    String[] chips = tags.split(",");
+    for (String _chip: chips) {
+      tagsChipGroup.setVisibility(View.VISIBLE);
+      tagsChipGroup.addView(createChip(_chip));
     }
   }
 
@@ -217,6 +234,15 @@ public class ContactDetailActivity extends AppCompatActivity {
     GroupDatabase                   groupDatabase = SignalDatabase.groups();
     List<GroupDatabase.GroupRecord> groupRecords  = groupDatabase.getGroupsContainingMember(recipientId, false);
     return groupRecords;
+  }
+
+  private Chip createChip(String text) {
+    Chip chip = new Chip(this);
+    chip.setText(text);
+    chip.setCheckable(false);
+    chip.setClickable(false);
+    chip.setCloseIconVisible(false);
+    return chip;
   }
 
   @Override

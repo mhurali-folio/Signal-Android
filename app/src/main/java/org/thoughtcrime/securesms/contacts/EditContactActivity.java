@@ -4,30 +4,42 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+
 import org.thoughtcrime.securesms.R;
 
 import java.util.Calendar;
 
 public class EditContactActivity extends AppCompatActivity {
-  EditText bioTextField, notesTextField;
+  EditText bioTextField, notesTextField, tagsTextField;
   Button   saveButton, dateWeMetButton;
   TextView trustLevelHeading, intimacyLevelHeading;
   SeekBar  trustSeekBar, intimacySeekBar;
+  ChipGroup tagsChipGroup;
 
   DatePickerDialog datePickerDialog;
 
   ContactDetailModel contactDetailModel;
   ContactAccessor contactAccessor;
+
+  private String tags = "";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +57,10 @@ public class EditContactActivity extends AppCompatActivity {
     if(getIntent().hasExtra("recipient_id")) {
       contactDetailModel = contactAccessor.getLocalContactDetails(this, getIntent().getIntExtra("recipient_id", 0));
       updateViews();
+
+      if(tags != "") {
+        updateTagsChips();
+      }
     }
 
     saveButton.setOnClickListener(l -> onSaveButton());
@@ -78,6 +94,32 @@ public class EditContactActivity extends AppCompatActivity {
     });
 
     dateWeMetButton.setOnClickListener(l -> datePickerDialog.show());
+
+    tagsTextField.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+      @Override
+      public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        String text = v.getText().toString().trim();
+        if (actionId == EditorInfo.IME_ACTION_DONE && text != "") {
+          tagsChipGroup.setVisibility(View.VISIBLE);
+          tagsChipGroup.addView(createChip(text));
+          if(tags == "") {
+            tags = text;
+          } else {
+            tags = String.format("%s,%s",tags, text);
+          }
+          v.setText("");
+          hideKeyboard();
+          return true;
+        }
+        return false;
+      }
+    });
+
+  }
+
+  private void hideKeyboard() {
+    InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+    inputManager.toggleSoftInput(0, 0);
   }
 
   @Override
@@ -99,6 +141,8 @@ public class EditContactActivity extends AppCompatActivity {
     intimacySeekBar      = findViewById(R.id.intimacySeekBar);
     notesTextField       = findViewById(R.id.notes_text_field);
     dateWeMetButton      = findViewById(R.id.date_we_met_button);
+    tagsTextField        = findViewById(R.id.tags_text_field);
+    tagsChipGroup        = findViewById(R.id.tags_chips_group);
   }
 
   private void onSaveButton() {
@@ -108,6 +152,7 @@ public class EditContactActivity extends AppCompatActivity {
     contentValues.put(PeepContactContract.INTIMACY_LEVEL, convertSeekbarValue(intimacySeekBar.getProgress()));
     contentValues.put(PeepContactContract.NOTES, notesTextField.getText().toString());
     contentValues.put(PeepContactContract.DATE_WE_MET, dateWeMetButton.getText().toString());
+    contentValues.put(PeepContactContract.TAGS, tags);
 
     contactAccessor.addOrUpdateContactData(this, getIntent().getIntExtra("recipient_id", 0), contentValues);
     onBackPressed();
@@ -143,12 +188,33 @@ public class EditContactActivity extends AppCompatActivity {
 
     notesTextField.setText(contactDetailModel.getPeepLocalData().getNotes());
 
-    if(contactDetailModel.peepLocalData.getDateWeMet() != null) {
+    if(contactDetailModel.peepLocalData.getDateWeMet() != "") {
       dateWeMetButton.setText(contactDetailModel.peepLocalData.getDateWeMet());
+    }
+
+    if(contactDetailModel.peepLocalData.getTags() != null) {
+      tags = contactDetailModel.peepLocalData.getTags();
+    }
+  }
+
+  private void updateTagsChips() {
+    String[] chips = tags.split(",");
+    for (String _chip: chips) {
+      tagsChipGroup.setVisibility(View.VISIBLE);
+      tagsChipGroup.addView(createChip(_chip));
     }
   }
 
   private double convertSeekbarValue(int value){
     return value * 0.1f;
+  }
+
+  private Chip createChip(String text) {
+    Chip chip = new Chip(this);
+    chip.setText(text);
+    chip.setCheckable(false);
+    chip.setClickable(false);
+    chip.setCloseIconVisible(false);
+    return chip;
   }
 }
