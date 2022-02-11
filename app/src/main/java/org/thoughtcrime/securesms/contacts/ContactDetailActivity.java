@@ -19,9 +19,15 @@ import com.google.android.material.chip.ChipGroup;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.registration.PulsingFloatingActionButton;
 import org.thoughtcrime.securesms.database.GroupDatabase;
+import org.thoughtcrime.securesms.database.MmsSmsDatabase;
 import org.thoughtcrime.securesms.database.SignalDatabase;
+import org.thoughtcrime.securesms.database.ThreadDatabase;
+import org.thoughtcrime.securesms.database.model.MessageDataHolder;
+import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -32,7 +38,8 @@ public class ContactDetailActivity extends AppCompatActivity {
 
   TextView nameView, organizationView, trustView, bioView,
             intimacyView, notesView, dateWeMetView;
-  LinearLayout phoneLayout, emailLayout, addressLayout, groupsLayout;
+  LinearLayout phoneLayout, emailLayout, addressLayout,
+            groupsLayout, summaryLayout;
   PulsingFloatingActionButton editFab;
   ChipGroup tagsChipGroup;
 
@@ -86,6 +93,7 @@ public class ContactDetailActivity extends AppCompatActivity {
     groupsLayout      = findViewById(R.id.peep_contact_detail_groups_layout);
     dateWeMetView     = findViewById(R.id.peep_contact_date_we_met);
     tagsChipGroup     = findViewById(R.id.tags_chips_group);
+    summaryLayout     = findViewById(R.id.peep_contact_detail_summary_layout);
   }
 
   private void createDynamicViews() {
@@ -93,6 +101,7 @@ public class ContactDetailActivity extends AppCompatActivity {
     addEmailsView();
     addAddressView();
     addCommonGroupsView();
+    addSummaryView();
   }
 
   private void addPhoneNumbersView() {
@@ -205,6 +214,34 @@ public class ContactDetailActivity extends AppCompatActivity {
     }
   }
 
+  private void addSummaryView() {
+    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                                           LinearLayout.LayoutParams.WRAP_CONTENT);
+    layoutParams.setMargins(0, 10, 0, 0);
+
+    LinearLayout.LayoutParams titleLayoutParams = layoutParams;
+    titleLayoutParams.setMargins(0, 10, 0, 0);
+
+    TextView summaryTitleView = new TextView(this);
+    summaryTitleView.setLayoutParams(titleLayoutParams);
+    summaryTitleView.setText("Recent Summary:");
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      summaryTitleView.setTextAppearance(R.style.TextAppearance_Signal_Body1_Bold);
+    }
+    summaryTitleView.setTextSize(20);
+    groupsLayout.addView(summaryTitleView);
+
+    for (MessageDataHolder record:
+        getSummary()) {
+      TextView textView = new TextView(this);
+      textView.setLayoutParams(layoutParams);
+      String message = record.isOutGoing ? String.format("Me: %s", record.messageContent)
+                                         : String.format("%s: %s", record.userName, record.messageContent);
+      textView.setText(message);
+      groupsLayout.addView(textView);
+    }
+  }
+
   private void handlePeepLocalDataViews() {
     if(contactDetailModel.getPeepLocalData() != null) {
       trustView.setText(String.format("%s: %s",getResources().getString(R.string.trust_level),
@@ -228,6 +265,24 @@ public class ContactDetailActivity extends AppCompatActivity {
       tagsChipGroup.setVisibility(View.VISIBLE);
       tagsChipGroup.addView(createChip(_chip));
     }
+  }
+
+  private ArrayList<MessageDataHolder> getSummary() {
+    MmsSmsDatabase mmsSmsDatabase = SignalDatabase.mmsSms();
+    ThreadDatabase threadDatabase = SignalDatabase.threads();
+    Recipient      recipient      = Recipient.resolved(recipientId);
+    Long threadId = threadDatabase.getThreadIdFor(recipient.getId());
+    ArrayList<MessageDataHolder> messageDataHolders = new ArrayList<>();
+
+    if(threadId != null) {
+      messageDataHolders = mmsSmsDatabase.getSmsMms(threadId.toString(), recipient.getId());
+    }
+
+    if(messageDataHolders.size() > 3) {
+      Collections.reverse(messageDataHolders);
+      messageDataHolders = new ArrayList<>(messageDataHolders.subList(0, 3));
+    }
+    return messageDataHolders;
   }
 
   private List<GroupDatabase.GroupRecord> getGroupIncludedGroups() {
