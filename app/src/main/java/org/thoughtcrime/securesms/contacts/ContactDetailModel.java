@@ -28,8 +28,8 @@ class PeepWorkInfo {
 }
 
 class PeepLocalData {
-  private Double trust_level = Double.valueOf(0f);
-  private Double intimacy_level = Double.valueOf(0f);
+  private Double trust_level;
+  private Double intimacy_level;
   private String bio = "", notes = "", dateWeMet = "", tags = "";
 
   public Double getTrust_level() {

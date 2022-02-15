@@ -188,7 +188,7 @@ public class EditContactActivity extends AppCompatActivity {
 
     notesTextField.setText(contactDetailModel.getPeepLocalData().getNotes());
 
-    if(contactDetailModel.peepLocalData.getDateWeMet() != "") {
+    if(contactDetailModel.peepLocalData.getDateWeMet() != null) {
       dateWeMetButton.setText(contactDetailModel.peepLocalData.getDateWeMet());
     }
 

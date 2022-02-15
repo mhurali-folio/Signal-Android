@@ -243,20 +243,30 @@ public class ContactDetailActivity extends AppCompatActivity {
   }
 
   private void handlePeepLocalDataViews() {
-    if(contactDetailModel.getPeepLocalData() != null) {
-      trustView.setText(String.format("%s: %s",getResources().getString(R.string.trust_level),
-                                      String.format("%.1f", contactDetailModel.getPeepLocalData().getTrust_level())));
       bioView.setText(String.format("%s\n%s",getResources().getString(R.string.EditContactActivity__peepline_bio_title),
-                                    contactDetailModel.getPeepLocalData().getBio()));
-      intimacyView.setText(String.format("%s: %s",getResources().getString(R.string.intimacy_level),
-                                         String.format("%.1f", contactDetailModel.getPeepLocalData().getIntimacy_level())));
-      notesView.setText(String.format("%s:\n%s","Notes", contactDetailModel.getPeepLocalData().getNotes()));
-      dateWeMetView.setText(String.format("%s: %s", getResources().getString(R.string.date_we_met), contactDetailModel.getPeepLocalData().getDateWeMet()));
+                                    contactDetailModel.getPeepLocalData().getBio() != null ? contactDetailModel.getPeepLocalData().getBio() : "--"));
+      notesView.setText(String.format("%s:\n%s","Notes",
+                                      contactDetailModel.getPeepLocalData().getNotes() != null ? contactDetailModel.getPeepLocalData().getNotes() : "--"));
+      dateWeMetView.setText(String.format("%s: %s", getResources().getString(R.string.date_we_met),
+                                          contactDetailModel.getPeepLocalData().getDateWeMet() != null ? contactDetailModel.getPeepLocalData().getDateWeMet() : "--"));
 
       if(contactDetailModel.peepLocalData.getTags() != null) {
         updateTagsChips(contactDetailModel.peepLocalData.getTags());
       }
+
+    String formatted_trust_level = "Not rated";
+    if(contactDetailModel.getPeepLocalData().getTrust_level() != null) {
+      formatted_trust_level = String.format("%.1f", contactDetailModel.getPeepLocalData().getTrust_level());
     }
+    trustView.setText(String.format("%s: %s",getResources().getString(R.string.trust_level),
+                                    formatted_trust_level));
+
+    String formatted_intimacy_level = "Not rated";
+    if(contactDetailModel.getPeepLocalData().getIntimacy_level() != null) {
+      formatted_intimacy_level = String.format("%.1f", contactDetailModel.getPeepLocalData().getIntimacy_level());
+    }
+    intimacyView.setText(String.format("%s: %s",getResources().getString(R.string.intimacy_level),
+                                    formatted_intimacy_level));
   }
 
   private void updateTagsChips(String tags) {
