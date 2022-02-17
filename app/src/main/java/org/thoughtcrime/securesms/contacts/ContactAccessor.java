@@ -21,40 +21,33 @@ import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
-import android.util.Log;
-
-import com.annimon.stream.Stream;
 
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.database.IdentityDatabase;
-import org.thoughtcrime.securesms.database.SignalDatabase;
-import org.thoughtcrime.securesms.database.model.IdentityRecord;
-import org.thoughtcrime.securesms.database.model.IdentityStoreRecord;
-import org.thoughtcrime.securesms.dependencies.ApplicationDependencies;
+import org.thoughtcrime.securesms.contacts.contactmanager.ContactDetailModel;
+import org.thoughtcrime.securesms.contacts.contactmanager.PeepAddress;
+import org.thoughtcrime.securesms.contacts.contactmanager.PeepContactContract;
+import org.thoughtcrime.securesms.contacts.contactmanager.PeepEmail;
+import org.thoughtcrime.securesms.contacts.contactmanager.PeepLocalData;
+import org.thoughtcrime.securesms.contacts.contactmanager.PeepPhoneNumber;
+import org.thoughtcrime.securesms.contacts.contactmanager.PeepStructuredName;
+import org.thoughtcrime.securesms.contacts.contactmanager.PeepWorkInfo;
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.SqlUtil;
-import org.whispersystems.libsignal.util.guava.Optional;
-import org.whispersystems.signalservice.api.messages.multidevice.DeviceInfo;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -62,9 +55,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
-import java.util.TimeZone;
 
 /**
  * This class was originally a layer of indirection between
@@ -183,24 +174,11 @@ public class ContactAccessor {
     }
     cursor.close();
     contactDetailModel.peepLocalData = getPeepContactDetailsForID(context, recipient_id);
-    Recipient                    recipient = Recipient.resolved(RecipientId.from(recipient_id));
-//    IdentityDatabase    identityDatabase = SignalDatabase.identities();
-//    IdentityStoreRecord record           = identityDatabase.getIdentityStoreRecord(recipient.getAci().toString());
-//    if(record != null)
-//    Log.d("getLocalContactDetails", "getLocalContactDetails: "
-//                                    + " time " + record.getTimestamp()
-//                                    + " getDate " + getDate(record.getTimestamp())
-//                                    + " name " + recipient.getDisplayName(context)
-//                                    + " addressName " + record.getAddressName()
-//    );
 
     return contactDetailModel;
   }
 
   private String getDate(long time) {
-//    SimpleDateFormat formatter = new SimpleDateFormat("dd-mm-yyyy hh:mm a");
-//    Date timeD = new Date(time);
-//    return formatter.format(timeD);
     Calendar c = Calendar.getInstance();
     c.setTimeInMillis(time);
     Date d = c.getTime();
@@ -212,35 +190,35 @@ public class ContactAccessor {
     switch (mimeType) {
       case CommonDataKinds.Phone.CONTENT_ITEM_TYPE: {
         PeepPhoneNumber phoneNumber = new PeepPhoneNumber();
-        phoneNumber.number = cursor.getString(cursor.getColumnIndex(CommonDataKinds.Phone.NUMBER));
-        phoneNumber.type  = cursor.getInt(cursor.getColumnIndex(Phone.TYPE));
+        phoneNumber.setNumber(cursor.getString(cursor.getColumnIndex(CommonDataKinds.Phone.NUMBER)));
+        phoneNumber.setType(cursor.getInt(cursor.getColumnIndex(Phone.TYPE)));
         contactDetailModel.addPeepPhoneNumber(phoneNumber);
         break;
       }
       case CommonDataKinds.Email.CONTENT_ITEM_TYPE: {
         PeepEmail peepEmail = new PeepEmail();
-        peepEmail.email = cursor.getString(cursor.getColumnIndex(CommonDataKinds.Email.ADDRESS));
-        peepEmail.type  = cursor.getInt(cursor.getColumnIndex(CommonDataKinds.Email.TYPE));
+        peepEmail.setEmail(cursor.getString(cursor.getColumnIndex(CommonDataKinds.Email.ADDRESS)));
+        peepEmail.setType(cursor.getInt(cursor.getColumnIndex(CommonDataKinds.Email.TYPE)));
         contactDetailModel.addPeepEmails(peepEmail);
         break;
       }
       case CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE: {
         PeepAddress peepAddress = new PeepAddress();
-        peepAddress.address = cursor.getString(cursor.getColumnIndex(CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS));
-        peepAddress.type  = cursor.getInt(cursor.getColumnIndex(CommonDataKinds.StructuredPostal.TYPE));
+        peepAddress.setAddress(cursor.getString(cursor.getColumnIndex(CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS)));
+        peepAddress.setType(cursor.getInt(cursor.getColumnIndex(CommonDataKinds.StructuredPostal.TYPE)));
         contactDetailModel.addPeepAddress(peepAddress);
         break;
       }
       case CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE: {
         PeepStructuredName peepStructuredName = new PeepStructuredName();
-        peepStructuredName.name = cursor.getString(cursor.getColumnIndex(CommonDataKinds.StructuredName.DISPLAY_NAME));
+        peepStructuredName.setName(cursor.getString(cursor.getColumnIndex(CommonDataKinds.StructuredName.DISPLAY_NAME)));
         contactDetailModel.setPeepStructuredName(peepStructuredName);
         break;
       }
       case CommonDataKinds.Organization.CONTENT_ITEM_TYPE: {
         PeepWorkInfo peepWorkInfo = new PeepWorkInfo();
-        peepWorkInfo.company = cursor.getString(cursor.getColumnIndex(CommonDataKinds.Organization.COMPANY));
-        peepWorkInfo.title = cursor.getString(cursor.getColumnIndex(CommonDataKinds.Organization.TITLE));
+        peepWorkInfo.setCompany(cursor.getString(cursor.getColumnIndex(CommonDataKinds.Organization.COMPANY)));
+        peepWorkInfo.setTitle(cursor.getString(cursor.getColumnIndex(CommonDataKinds.Organization.TITLE)));
         contactDetailModel.setPeepWorkInfo(peepWorkInfo);
         break;
       }
@@ -373,6 +351,37 @@ public class ContactAccessor {
       context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
     } catch (Exception e) {
       e.printStackTrace();
+    }
+  }
+
+  public void updatePhoneBookContact(Context context, Integer recipient_id, ContentValues contentValues) {
+    int      contactId     = getContactByPhoneNumber(context, RecipientId.from(recipient_id)).contactId;
+    int      rawContactId  = getRawContactId(context, contactId);
+
+    String   whereMimeContact      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.RAW_CONTACT_ID + " = ?";
+    String[] argsMimeContact       = SqlUtil.buildArgs(CommonDataKinds.Email.CONTENT_ITEM_TYPE, rawContactId);
+
+    Cursor c = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                                                  null,
+                                                  whereMimeContact,
+                                                  argsMimeContact,
+                                                  null);
+
+    if (c != null && c.moveToNext()) {
+      ArrayList<ContentProviderOperation> ops = new ArrayList();
+      try{
+//        ContentValues contentValues = new ContentValues();
+//        contentValues.put(CommonDataKinds.Email.DATA1, "EikeOsama@consulting.com");
+        ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                                        .withSelection(whereMimeContact, argsMimeContact)
+                                        .withValue(ContactsContract.Data.MIMETYPE, CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+                                        .withValues(contentValues)
+                                        .build());
+
+        context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
   }
 
