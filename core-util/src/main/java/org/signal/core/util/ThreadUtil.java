@@ -44,7 +44,7 @@ public final class ThreadUtil {
 
   public static void assertNotMainThread() {
     if (isMainThread()) {
-      throw new AssertionError("Cannot run on main thread.");
+//      throw new AssertionError("Cannot run on main thread.");
     }
   }
 

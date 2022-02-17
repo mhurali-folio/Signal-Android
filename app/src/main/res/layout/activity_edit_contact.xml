@@ -5,11 +5,11 @@
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:paddingHorizontal="30dp"
-    tools:context=".contacts.EditContactActivity">
+    tools:context=".contacts.contactmanager.EditContactActivity">
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".contacts.EditContactActivity">
+    tools:context=".contacts.contactmanager.EditContactActivity">
 
     <TextView
         android:id="@+id/peepline_details"
