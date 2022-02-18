@@ -3,10 +3,13 @@ package org.thoughtcrime.securesms.contacts.contactmanager;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
+import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +27,7 @@ import com.google.android.material.chip.ChipGroup;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.contacts.ContactAccessor;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class EditContactActivity extends AppCompatActivity {
@@ -33,12 +37,15 @@ public class EditContactActivity extends AppCompatActivity {
   SeekBar  trustSeekBar, intimacySeekBar;
   ChipGroup tagsChipGroup;
 
+  EditPhoneContactFragment editPhoneContactFragment;
+
   DatePickerDialog datePickerDialog;
 
   ContactDetailModel contactDetailModel;
   ContactAccessor    contactAccessor;
 
   private String tags = "";
+  private int recipient_id;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +61,8 @@ public class EditContactActivity extends AppCompatActivity {
     contactAccessor = ContactAccessor.getInstance();
 
     if(getIntent().hasExtra("recipient_id")) {
-      contactDetailModel = contactAccessor.getLocalContactDetails(this, getIntent().getIntExtra("recipient_id", 0));
+      recipient_id = getIntent().getIntExtra("recipient_id", 0);
+      contactDetailModel = contactAccessor.getLocalContactDetails(this, recipient_id);
       updateViews();
 
       if(tags != "") {
@@ -114,6 +122,15 @@ public class EditContactActivity extends AppCompatActivity {
       }
     });
 
+    if (savedInstanceState == null) {
+      Bundle bundle = new Bundle();
+      bundle.putSerializable("emails", contactDetailModel.getPeepEmails());
+
+      editPhoneContactFragment = EditPhoneContactFragment.newInstance(contactDetailModel.getPeepEmails());
+      getSupportFragmentManager().beginTransaction()
+                                 .replace(R.id.phone_contact_fragment_view, editPhoneContactFragment)
+                                 .commit();
+    }
   }
 
   private void hideKeyboard() {
@@ -145,6 +162,7 @@ public class EditContactActivity extends AppCompatActivity {
   }
 
   private void onSaveButton() {
+
     ContentValues contentValues = new ContentValues();
     contentValues.put(PeepContactContract.TRUST_LEVEL, convertSeekbarValue(trustSeekBar.getProgress()));
     contentValues.put(PeepContactContract.ABOUT, bioTextField.getText().toString());
@@ -153,7 +171,13 @@ public class EditContactActivity extends AppCompatActivity {
     contentValues.put(PeepContactContract.DATE_WE_MET, dateWeMetButton.getText().toString());
     contentValues.put(PeepContactContract.TAGS, tags);
 
-    contactAccessor.addOrUpdateContactData(this, getIntent().getIntExtra("recipient_id", 0), contentValues);
+    contactAccessor.addOrUpdateContactData(this, recipient_id, contentValues);
+
+    ContactDetailModel phoneContactDetails = editPhoneContactFragment.getUpdatedInformation();
+    if(phoneContactDetails != null) {
+      contactAccessor.updatePhoneBookContact(this, recipient_id, phoneContactDetails);
+    }
+
     onBackPressed();
   }
 

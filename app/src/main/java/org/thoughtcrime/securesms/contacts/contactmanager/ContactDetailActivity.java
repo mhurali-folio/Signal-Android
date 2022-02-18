@@ -70,11 +70,8 @@ public class ContactDetailActivity extends AppCompatActivity {
     editFab.setOnClickListener(l -> handleOnEditFabClick());
 
     getGroupIncludedGroups();
-
-//    contactAccessor.updatePhoneBookContact(this,
-//                                           getIntent().getIntExtra(RECIPIENT_ID_INTENT_EXTRA, 0),
-//                                           null);
   }
+
   private void handleOnEditFabClick() {
     Intent intent = new Intent(this, EditContactActivity.class);
     intent.putExtra(RECIPIENT_ID_INTENT_EXTRA, getIntent().getIntExtra(RECIPIENT_ID_INTENT_EXTRA, 0));

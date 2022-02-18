@@ -4262,6 +4262,10 @@
     <string name="select_date">Select Date</string>
     <string name="date_we_met">Date We Met</string>
     <string name="tags">Tags:</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="contact_details">Contact Details</string>
+    <string name="email_addresses">Email Addresses:</string>
 
     <!-- EOF -->
 

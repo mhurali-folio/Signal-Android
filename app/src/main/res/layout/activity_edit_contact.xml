@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:paddingHorizontal="30dp"
+    android:scrollbars="none"
     tools:context=".contacts.contactmanager.EditContactActivity">
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
@@ -45,7 +46,7 @@
         android:gravity="start|top"
         android:inputType="textMultiLine"
         android:maxLines="3"
-        android:background="#f3f3f3"
+        android:background="@color/text_input_background"
         android:layout_marginTop="5dp"
         android:padding="10dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -73,7 +74,7 @@
         android:gravity="start|top"
         android:inputType="textMultiLine"
         android:maxLines="3"
-        android:background="#f3f3f3"
+        android:background="@color/text_input_background"
         android:layout_marginTop="5dp"
         android:padding="10dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -170,7 +171,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:gravity="start|top"
-        android:background="#f3f3f3"
+        android:background="@color/text_input_background"
         android:layout_marginTop="15dp"
         android:padding="10dp"
         android:inputType="text"
@@ -191,6 +192,27 @@
         >
     </com.google.android.material.chip.ChipGroup>
 
+    <TextView
+        android:id="@+id/contact_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/contact_details"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tags_chips_group"
+        android:layout_marginTop="20dp"
+        android:textAppearance="@style/TextAppearance.Signal.Body1.Bold"
+        android:textColor="@color/signal_text_secondary"
+        android:textSize="24dp"
+        />
+
+    <androidx.fragment.app.FragmentContainerView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/phone_contact_fragment_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/contact_details"/>
+
     <Button
         android:id="@+id/save_peep_details"
         android:layout_width="wrap_content"
@@ -201,7 +223,7 @@
         android:layout_marginTop="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tags_chips_group"/>
+        app:layout_constraintTop_toBottomOf="@id/phone_contact_fragment_view"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

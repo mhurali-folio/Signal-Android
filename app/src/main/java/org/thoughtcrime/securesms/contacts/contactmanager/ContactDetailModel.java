@@ -3,12 +3,12 @@ package org.thoughtcrime.securesms.contacts.contactmanager;
 import java.util.ArrayList;
 
 public class ContactDetailModel {
-  ArrayList<PeepPhoneNumber> peepPhoneNumbers;
-  ArrayList<PeepAddress>     peepAddresses;
-  ArrayList<PeepEmail>       peepEmails;
-  PeepStructuredName         peepStructuredName;
-  PeepWorkInfo               peepWorkInfo;
-  public PeepLocalData peepLocalData;
+  private ArrayList<PeepPhoneNumber> peepPhoneNumbers;
+  private ArrayList<PeepAddress>     peepAddresses;
+  private ArrayList<PeepEmail>       peepEmails;
+  private PeepStructuredName         peepStructuredName;
+  private PeepWorkInfo               peepWorkInfo;
+  public  PeepLocalData              peepLocalData;
 
   public void addPeepPhoneNumber(PeepPhoneNumber phoneNumber) {
     if (peepPhoneNumbers == null) {
@@ -29,6 +29,10 @@ public class ContactDetailModel {
       peepEmails = new ArrayList<>();
     }
     peepEmails.add(email);
+  }
+
+  public void setPeepEmails(ArrayList<PeepEmail> peepEmails) {
+    this.peepEmails = peepEmails;
   }
 
   public void setPeepStructuredName(PeepStructuredName peepStructuredName) {

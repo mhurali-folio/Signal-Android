@@ -32,6 +32,7 @@ import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.R;
@@ -199,6 +200,7 @@ public class ContactAccessor {
         PeepEmail peepEmail = new PeepEmail();
         peepEmail.setEmail(cursor.getString(cursor.getColumnIndex(CommonDataKinds.Email.ADDRESS)));
         peepEmail.setType(cursor.getInt(cursor.getColumnIndex(CommonDataKinds.Email.TYPE)));
+        peepEmail.set_id(cursor.getInt(cursor.getColumnIndex(CommonDataKinds.Email._ID)));
         contactDetailModel.addPeepEmails(peepEmail);
         break;
       }
@@ -354,12 +356,11 @@ public class ContactAccessor {
     }
   }
 
-  public void updatePhoneBookContact(Context context, Integer recipient_id, ContentValues contentValues) {
-    int      contactId     = getContactByPhoneNumber(context, RecipientId.from(recipient_id)).contactId;
-    int      rawContactId  = getRawContactId(context, contactId);
-
-    String   whereMimeContact      = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.RAW_CONTACT_ID + " = ?";
-    String[] argsMimeContact       = SqlUtil.buildArgs(CommonDataKinds.Email.CONTENT_ITEM_TYPE, rawContactId);
+  public void updatePhoneBookContact(Context context, Integer recipient_id, ContactDetailModel contactDetailModel) {
+    int      contactId         = getContactByPhoneNumber(context, RecipientId.from(recipient_id)).contactId;
+    int      rawContactId      = getRawContactId(context, contactId);
+    String   whereMimeContact  = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.RAW_CONTACT_ID + " = ?";
+    String[] argsMimeContact   = SqlUtil.buildArgs(CommonDataKinds.Email.CONTENT_ITEM_TYPE, rawContactId);
 
     Cursor c = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
                                                   null,
@@ -367,22 +368,37 @@ public class ContactAccessor {
                                                   argsMimeContact,
                                                   null);
 
-    if (c != null && c.moveToNext()) {
-      ArrayList<ContentProviderOperation> ops = new ArrayList();
-      try{
-//        ContentValues contentValues = new ContentValues();
-//        contentValues.put(CommonDataKinds.Email.DATA1, "EikeOsama@consulting.com");
-        ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
-                                        .withSelection(whereMimeContact, argsMimeContact)
-                                        .withValue(ContactsContract.Data.MIMETYPE, CommonDataKinds.Email.CONTENT_ITEM_TYPE)
-                                        .withValues(contentValues)
-                                        .build());
+    ArrayList<ContentProviderOperation> ops = new ArrayList();
+    ops.addAll(getEmailUpdateOperations(rawContactId, contactDetailModel.getPeepEmails(), c));
 
-        context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+    c.close();
+
+    try {
+      context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
+  }
+
+  private ArrayList<ContentProviderOperation> getEmailUpdateOperations(int rawContactId,
+                                                                       ArrayList<PeepEmail> peepEmails,
+                                                                       Cursor cursor) {
+    ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+    String   whereBase                             = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.RAW_CONTACT_ID + " = ?";
+
+    while (cursor != null && cursor.moveToNext()) {
+      PeepEmail peepEmail = peepEmails.get(cursor.getPosition());
+      String where        = whereBase + " AND " + ContactsContract.Data._ID + " = ?";
+      String[] selection  = SqlUtil.buildArgs(CommonDataKinds.Email.CONTENT_ITEM_TYPE, rawContactId, peepEmail.get_id());
+
+      operations.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                                      .withSelection(where, selection)
+                                      .withValue(ContactsContract.Data.MIMETYPE, CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+                                      .withValue(CommonDataKinds.Email.ADDRESS, peepEmail.getEmail())
+                                      .withValue(CommonDataKinds.Email.TYPE, peepEmail.getType())
+                                      .build());
+    }
+    return operations;
   }
 
   public String getNameFromContact(Context context, Uri uri) {
