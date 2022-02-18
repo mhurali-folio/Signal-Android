@@ -359,20 +359,9 @@ public class ContactAccessor {
   public void updatePhoneBookContact(Context context, Integer recipient_id, ContactDetailModel contactDetailModel) {
     int      contactId         = getContactByPhoneNumber(context, RecipientId.from(recipient_id)).contactId;
     int      rawContactId      = getRawContactId(context, contactId);
-    String   whereMimeContact  = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.RAW_CONTACT_ID + " = ?";
-    String[] argsMimeContact   = SqlUtil.buildArgs(CommonDataKinds.Email.CONTENT_ITEM_TYPE, rawContactId);
-
-    Cursor c = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
-                                                  null,
-                                                  whereMimeContact,
-                                                  argsMimeContact,
-                                                  null);
 
     ArrayList<ContentProviderOperation> ops = new ArrayList();
-    ops.addAll(getEmailUpdateOperations(rawContactId, contactDetailModel.getPeepEmails(), c));
-
-    c.close();
-
+    ops.addAll(getEmailUpdateOperations(rawContactId, contactDetailModel.getPeepEmails(), context));
     try {
       context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
     } catch (Exception e) {
@@ -382,9 +371,19 @@ public class ContactAccessor {
 
   private ArrayList<ContentProviderOperation> getEmailUpdateOperations(int rawContactId,
                                                                        ArrayList<PeepEmail> peepEmails,
-                                                                       Cursor cursor) {
+                                                                       Context context) {
     ArrayList<ContentProviderOperation> operations = new ArrayList<>();
     String   whereBase                             = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.RAW_CONTACT_ID + " = ?";
+
+    String   whereMimeContact  = whereBase;
+    String[] argsMimeContact   = SqlUtil.buildArgs(CommonDataKinds.Email.CONTENT_ITEM_TYPE, rawContactId);
+
+
+    Cursor cursor = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                                                  null,
+                                                  whereMimeContact,
+                                                  argsMimeContact,
+                                                  null);
 
     while (cursor != null && cursor.moveToNext()) {
       PeepEmail peepEmail = peepEmails.get(cursor.getPosition());
@@ -398,6 +397,8 @@ public class ContactAccessor {
                                       .withValue(CommonDataKinds.Email.TYPE, peepEmail.getType())
                                       .build());
     }
+
+    cursor.close();
     return operations;
   }
 
