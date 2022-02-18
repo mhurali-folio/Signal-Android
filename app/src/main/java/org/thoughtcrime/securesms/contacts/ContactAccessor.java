@@ -208,6 +208,7 @@ public class ContactAccessor {
         PeepAddress peepAddress = new PeepAddress();
         peepAddress.setAddress(cursor.getString(cursor.getColumnIndex(CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS)));
         peepAddress.setType(cursor.getInt(cursor.getColumnIndex(CommonDataKinds.StructuredPostal.TYPE)));
+        peepAddress.set_id(cursor.getInt(cursor.getColumnIndex(CommonDataKinds.StructuredPostal._ID)));
         contactDetailModel.addPeepAddress(peepAddress);
         break;
       }
@@ -362,6 +363,7 @@ public class ContactAccessor {
 
     ArrayList<ContentProviderOperation> ops = new ArrayList();
     ops.addAll(getEmailUpdateOperations(rawContactId, contactDetailModel.getPeepEmails(), context));
+    ops.addAll(getAddressUpdateOperations(rawContactId, contactDetailModel.getPeepAddresses(), context));
     try {
       context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
     } catch (Exception e) {
@@ -396,6 +398,39 @@ public class ContactAccessor {
                                       .withValue(CommonDataKinds.Email.ADDRESS, peepEmail.getEmail())
                                       .withValue(CommonDataKinds.Email.TYPE, peepEmail.getType())
                                       .build());
+    }
+
+    cursor.close();
+    return operations;
+  }
+
+  private ArrayList<ContentProviderOperation> getAddressUpdateOperations(int rawContactId,
+                                                                       ArrayList<PeepAddress> peepAddresses,
+                                                                       Context context) {
+    ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+    String   whereBase                             = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.Data.RAW_CONTACT_ID + " = ?";
+
+    String   whereMimeContact  = whereBase;
+    String[] argsMimeContact   = SqlUtil.buildArgs(CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE, rawContactId);
+
+
+    Cursor cursor = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                                                       null,
+                                                       whereMimeContact,
+                                                       argsMimeContact,
+                                                       null);
+
+    while (cursor != null && cursor.moveToNext()) {
+      PeepAddress peepAddress = peepAddresses.get(cursor.getPosition());
+      String where        = whereBase + " AND " + ContactsContract.Data._ID + " = ?";
+      String[] selection  = SqlUtil.buildArgs(CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE, rawContactId, peepAddress.get_id());
+
+      operations.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                                             .withSelection(where, selection)
+                                             .withValue(ContactsContract.Data.MIMETYPE, CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
+                                             .withValue(CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS, peepAddress.getAddress())
+                                             .withValue(CommonDataKinds.StructuredPostal.TYPE, peepAddress.getType())
+                                             .build());
     }
 
     cursor.close();

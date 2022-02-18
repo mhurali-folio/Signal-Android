@@ -4266,6 +4266,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="contact_details">Contact Details</string>
     <string name="email_addresses">Email Addresses:</string>
+    <string name="user_addresses">User Addresses:</string>
 
     <!-- EOF -->
 

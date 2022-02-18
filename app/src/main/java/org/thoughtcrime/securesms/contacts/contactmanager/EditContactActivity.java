@@ -123,10 +123,7 @@ public class EditContactActivity extends AppCompatActivity {
     });
 
     if (savedInstanceState == null) {
-      Bundle bundle = new Bundle();
-      bundle.putSerializable("emails", contactDetailModel.getPeepEmails());
-
-      editPhoneContactFragment = EditPhoneContactFragment.newInstance(contactDetailModel.getPeepEmails());
+      editPhoneContactFragment = EditPhoneContactFragment.newInstance(contactDetailModel.getPeepEmails(), contactDetailModel.getPeepAddresses());
       getSupportFragmentManager().beginTransaction()
                                  .replace(R.id.phone_contact_fragment_view, editPhoneContactFragment)
                                  .commit();
@@ -162,7 +159,6 @@ public class EditContactActivity extends AppCompatActivity {
   }
 
   private void onSaveButton() {
-
     ContentValues contentValues = new ContentValues();
     contentValues.put(PeepContactContract.TRUST_LEVEL, convertSeekbarValue(trustSeekBar.getProgress()));
     contentValues.put(PeepContactContract.ABOUT, bioTextField.getText().toString());

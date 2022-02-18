@@ -35,6 +35,10 @@ public class ContactDetailModel {
     this.peepEmails = peepEmails;
   }
 
+  public void setPeepAddresses(ArrayList<PeepAddress> peepAddresses) {
+    this.peepAddresses = peepAddresses;
+  }
+
   public void setPeepStructuredName(PeepStructuredName peepStructuredName) {
     this.peepStructuredName = peepStructuredName;
   }

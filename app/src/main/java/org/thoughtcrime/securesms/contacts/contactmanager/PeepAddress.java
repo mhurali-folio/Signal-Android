@@ -6,4 +6,8 @@ public class PeepAddress extends PeepBaseData {
   public void setAddress(String address) {
     this.address = address;
   }
+
+  public String getAddress() {
+    return address;
+  }
 }
