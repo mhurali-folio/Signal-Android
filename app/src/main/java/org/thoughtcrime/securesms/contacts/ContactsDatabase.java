@@ -33,6 +33,7 @@ import androidx.annotation.Nullable;
 
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.contacts.contactmanager.PeepContactContract;
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
 import org.thoughtcrime.securesms.util.Util;
 import org.whispersystems.libsignal.util.guava.Optional;
@@ -74,8 +75,6 @@ public class ContactsDatabase {
     try (Cursor cursor = context.getContentResolver().query(currentContactsUri, projection, RawContacts.DELETED + " = ?", new String[] {"1"}, null)) {
       while (cursor != null && cursor.moveToNext()) {
         long rawContactId = cursor.getLong(0);
-        Log.i(TAG, "Deleting raw contact: " + cursor.getString(1) + ", " + rawContactId);
-
         context.getContentResolver().delete(currentContactsUri, RawContacts._ID + " = ?", new String[] {String.valueOf(rawContactId)});
       }
     }
@@ -345,7 +344,8 @@ public class ContactsDatabase {
                                                                              .appendQueryParameter(RawContacts.ACCOUNT_TYPE, account.type)
                                                                              .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true").build())
                                            .withYieldAllowed(true)
-                                           .withSelection(BaseColumns._ID + " = ?", new String[] {String.valueOf(rowId)})
+                                           .withSelection(BaseColumns._ID + " = ? AND " + RawContacts.SYNC1 + " != ?",
+                                                          new String[] { String.valueOf(rowId), PeepContactContract.CONTACT_MIME_TYPE})
                                            .build());
   }
 

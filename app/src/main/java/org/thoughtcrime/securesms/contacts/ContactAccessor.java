@@ -160,6 +160,8 @@ public class ContactAccessor {
     String   where         = ContactsContract.Data.RAW_CONTACT_ID + " = ?";
     int      contactId     = getContactByPhoneNumber(context, RecipientId.from(recipient_id)).contactId;
     int      rawContactId  = getRawContactId(context, contactId);
+
+
     String[] args          = SqlUtil.buildArgs(rawContactId);
 
     Cursor cursor = context.getContentResolver().query(uri,
@@ -310,9 +312,14 @@ public class ContactAccessor {
   private void createRawContact(Context context, Integer rawContactId, ContactDataHolder contactDataHolder, ContentValues contentValues) {
     ArrayList<ContentProviderOperation> ops = new ArrayList();
     try{
+      /**
+       * We are setting sync1 to our mime type value because signal uses user's number here. And we wanted to
+       * differentiate signal's contact with ours, so that our raw contact won't be removed when sync.
+       */
       ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
                                       .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, context.getString(R.string.app_name))
                                       .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, BuildConfig.APPLICATION_ID)
+                                      .withValue(ContactsContract.RawContacts.SYNC1, PeepContactContract.CONTACT_MIME_TYPE)
                                       .build());
 
       ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
