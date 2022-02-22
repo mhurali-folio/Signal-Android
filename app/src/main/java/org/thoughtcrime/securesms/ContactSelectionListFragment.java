@@ -289,6 +289,11 @@ public final class ContactSelectionListFragment extends LoggingFragment
     return view;
   }
 
+  @Override public void onResume() {
+    super.onResume();
+    cursorRecyclerViewAdapter.notifyDataSetChanged();
+  }
+
   private @NonNull Bundle safeArguments() {
     return getArguments() != null ? getArguments() : new Bundle();
   }

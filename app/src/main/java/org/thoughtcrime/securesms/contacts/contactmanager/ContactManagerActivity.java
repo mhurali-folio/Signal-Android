@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -68,11 +69,7 @@ public class ContactManagerActivity extends ContactSelectionActivity {
     next.setOnClickListener(v -> handleNextPressed());
 
     trustLevelHeading = findViewById(R.id.trustLevelHeading);
-
     trustSeekBar = (SeekBar)findViewById(R.id.trustSeekBar);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      trustSeekBar.setTooltipText("20");
-    }
 
     trustSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
       public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

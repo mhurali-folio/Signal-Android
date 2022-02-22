@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -43,6 +44,7 @@ public class ContactDetailActivity extends AppCompatActivity {
   ChipGroup tagsChipGroup;
 
   RecipientId recipientId;
+  ContactAccessor contactAccessor;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -53,23 +55,34 @@ public class ContactDetailActivity extends AppCompatActivity {
 
     this.initializeViews();
 
-    ContactAccessor contactAccessor = ContactAccessor.getInstance();
+    contactAccessor = ContactAccessor.getInstance();
     if(getIntent().hasExtra(RECIPIENT_ID_INTENT_EXTRA)) {
       recipientId = RecipientId.from(getIntent().getIntExtra(RECIPIENT_ID_INTENT_EXTRA, 0));
-      contactDetailModel = contactAccessor.getLocalContactDetails(this, getIntent().getIntExtra(RECIPIENT_ID_INTENT_EXTRA, 0));
-      if(contactDetailModel.getPeepStructuredName() != null) {
-        nameView.setText(contactDetailModel.getPeepStructuredName().name);
-      }
-      if(contactDetailModel.getPeepWorkInfo() != null) {
-        organizationView.setText(String.format("%s\n%s", contactDetailModel.getPeepWorkInfo().company, contactDetailModel.getPeepWorkInfo().title));
-      }
-      this.createDynamicViews();
-      this.handlePeepLocalDataViews();
+      handleDataUpdate();
     }
 
     editFab.setOnClickListener(l -> handleOnEditFabClick());
 
     getGroupIncludedGroups();
+  }
+
+  private void handleDataUpdate() {
+    contactDetailModel = contactAccessor.getLocalContactDetails(this, getIntent().getIntExtra(RECIPIENT_ID_INTENT_EXTRA, 0));
+    if(contactDetailModel.getPeepStructuredName() != null) {
+      nameView.setText(contactDetailModel.getPeepStructuredName().name);
+    }
+    if(contactDetailModel.getPeepWorkInfo() != null) {
+      organizationView.setText(String.format("%s\n%s", contactDetailModel.getPeepWorkInfo().company, contactDetailModel.getPeepWorkInfo().title));
+    }
+
+    removeViewsBeforeUpdate();
+    createDynamicViews();
+    handlePeepLocalDataViews();
+  }
+
+  @Override public void onResume() {
+    super.onResume();
+    handleDataUpdate();
   }
 
   private void handleOnEditFabClick() {
@@ -274,6 +287,15 @@ public class ContactDetailActivity extends AppCompatActivity {
       tagsChipGroup.setVisibility(View.VISIBLE);
       tagsChipGroup.addView(createChip(_chip));
     }
+  }
+
+  private void removeViewsBeforeUpdate() {
+    tagsChipGroup.removeAllViewsInLayout();
+    phoneLayout.removeAllViewsInLayout();
+    emailLayout.removeAllViewsInLayout();
+    addressLayout.removeAllViewsInLayout();
+    summaryLayout.removeAllViewsInLayout();
+    groupsLayout.removeAllViewsInLayout();
   }
 
   private ArrayList<MessageDataHolder> getSummary() {
