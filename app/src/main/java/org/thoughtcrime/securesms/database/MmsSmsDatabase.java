@@ -217,14 +217,6 @@ public class MmsSmsDatabase extends Database {
       }
     }
 
-//    for (String i : allMessages.keySet()) {
-//      for (int j = 0; j < allMessages.get(i).size(); j++) {
-//        System.out.println(" name: " + allMessages.get(i).get(j).userName
-//                           + "  isGroup: " +  allMessages.get(i).get(j).isGroup
-//                           + "  groupTitle: " +  allMessages.get(i).get(j).groupTitle
-//                           + "  message: " +  allMessages.get(i).get(j).messageContent);
-//      }
-//    }
     return allMessages;
   }
 

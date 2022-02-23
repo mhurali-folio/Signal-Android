@@ -70,7 +70,7 @@ public class DeviceListLoader extends AsyncLoader<List<Device>> {
       }
 
       DeviceName deviceName = DeviceName.parseFrom(Base64.decode(deviceInfo.getName()));
-
+      
       if (!deviceName.hasCiphertext() || !deviceName.hasEphemeralPublic() || !deviceName.hasSyntheticIv()) {
         throw new IOException("Got a DeviceName that wasn't properly populated.");
       }

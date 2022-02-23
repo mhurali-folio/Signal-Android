@@ -16,6 +16,7 @@ import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.badges.BadgeImageView;
 import org.thoughtcrime.securesms.components.AvatarImageView;
 import org.thoughtcrime.securesms.components.FromTextView;
+import org.thoughtcrime.securesms.contacts.contactmanager.PeepLocalData;
 import org.thoughtcrime.securesms.mms.GlideRequests;
 import org.thoughtcrime.securesms.phonenumbers.PhoneNumberFormatter;
 import org.thoughtcrime.securesms.recipients.LiveRecipient;
@@ -160,8 +161,12 @@ public class ContactSelectionListItem extends ConstraintLayout implements Recipi
 
     ContactAccessor contactAccessor = ContactAccessor.getInstance();
     if(recipientId != null) {
-      PeepLocalData peepLocalData = contactAccessor.getPeepContactDetailsForID(getContext(), (int) recipientId.toLong());
-      this.trustLevelText.setText("Trust: " + String.format("%.1f", peepLocalData.getTrust_level()));
+      PeepLocalData peepLocalData         = contactAccessor.getPeepContactDetailsForID(getContext(), (int) recipientId.toLong());
+      String        formatted_trust_level = "Not rated";
+      if(peepLocalData.getTrust_level() != null) {
+        formatted_trust_level = String.format("%.1f", peepLocalData.getTrust_level());
+      }
+      this.trustLevelText.setText("Trust: " + formatted_trust_level);
       this.trustLevelText.setVisibility(View.VISIBLE);
     }
   }

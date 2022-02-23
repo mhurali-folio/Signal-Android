@@ -1,4 +1,4 @@
-package org.thoughtcrime.securesms.contacts;
+package org.thoughtcrime.securesms.contacts.contactmanager;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,6 +20,8 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import org.thoughtcrime.securesms.ContactSelectionActivity;
 import org.thoughtcrime.securesms.ContactSelectionListFragment;
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.contacts.ContactAccessor;
+import org.thoughtcrime.securesms.contacts.ContactsCursorLoader;
 import org.thoughtcrime.securesms.recipients.RecipientId;
 import org.thoughtcrime.securesms.util.FeatureFlags;
 import org.thoughtcrime.securesms.util.Util;
@@ -67,11 +69,7 @@ public class ContactManagerActivity extends ContactSelectionActivity {
     next.setOnClickListener(v -> handleNextPressed());
 
     trustLevelHeading = findViewById(R.id.trustLevelHeading);
-
     trustSeekBar = (SeekBar)findViewById(R.id.trustSeekBar);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      trustSeekBar.setTooltipText("20");
-    }
 
     trustSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
       public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

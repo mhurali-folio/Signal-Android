@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".contacts.contactmanager.EditPhoneContactFragment">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:id="@+id/email_addresses"
+        android:paddingStart="4dp"
+        android:singleLine="true"
+        android:textAppearance="@style/TextAppearance.Signal.Body2"
+        android:textColor="@color/signal_text_secondary"
+        android:text="@string/email_addresses"
+        android:layout_marginVertical="15dp"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="RtlSymmetry"/>
+
+    <LinearLayout
+        android:id="@+id/email_address_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@+id/email_addresses"
+        android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:id="@+id/user_addresses"
+        android:paddingStart="4dp"
+        android:singleLine="true"
+        android:textAppearance="@style/TextAppearance.Signal.Body2"
+        android:textColor="@color/signal_text_secondary"
+        android:text="@string/user_addresses"
+        android:layout_marginVertical="15dp"
+        app:layout_constraintTop_toBottomOf="@+id/email_address_layout"
+        tools:ignore="RtlSymmetry"/>
+
+    <LinearLayout
+        android:id="@+id/user_address_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@+id/user_addresses"
+        android:layout_marginTop="20dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

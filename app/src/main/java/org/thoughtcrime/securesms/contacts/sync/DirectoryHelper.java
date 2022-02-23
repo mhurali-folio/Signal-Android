@@ -325,7 +325,8 @@ public class DirectoryHelper {
       contactsDatabase.setRegisteredUsers(account.getAccount(), activeAddresses, removeMissing);
 
       syncRecipientInfoWithSystemContacts(context, rewrites);
-    } catch (RemoteException | OperationApplicationException e) {
+    }
+    catch (RemoteException | OperationApplicationException e) {
       Log.w(TAG, "Failed to update contacts.", e);
     }
   }

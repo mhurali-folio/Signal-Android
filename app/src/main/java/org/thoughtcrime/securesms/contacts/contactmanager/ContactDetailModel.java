@@ -1,60 +1,14 @@
-package org.thoughtcrime.securesms.contacts;
+package org.thoughtcrime.securesms.contacts.contactmanager;
 
 import java.util.ArrayList;
 
-class PeepBaseData {
-  int type;
-}
-
-class PeepPhoneNumber extends PeepBaseData {
-  String number;
-}
-
-class PeepAddress extends PeepBaseData {
-  String address;
-}
-
-class PeepEmail extends PeepBaseData {
-  String email;
-}
-
-class PeepStructuredName {
-  String name;
-}
-
-class PeepWorkInfo {
-  String company;
-  String title;
-}
-
-class PeepLocalData {
-  private Double trust_level = Double.valueOf(0f);
-  private String bio = "";
-
-  public Double getTrust_level() {
-    return trust_level;
-  }
-
-  public String getBio() {
-    return bio;
-  }
-
-  public void setBio(String bio) {
-    this.bio = bio;
-  }
-
-  public void setTrust_level(Double trust_level) {
-    this.trust_level = trust_level;
-  }
-}
-
 public class ContactDetailModel {
-  ArrayList<PeepPhoneNumber> peepPhoneNumbers;
-  ArrayList<PeepAddress>     peepAddresses;
-  ArrayList<PeepEmail>       peepEmails;
-  PeepStructuredName         peepStructuredName;
-  PeepWorkInfo               peepWorkInfo;
-  PeepLocalData              peepLocalData;
+  private ArrayList<PeepPhoneNumber> peepPhoneNumbers;
+  private ArrayList<PeepAddress>     peepAddresses;
+  private ArrayList<PeepEmail>       peepEmails;
+  private PeepStructuredName         peepStructuredName;
+  private PeepWorkInfo               peepWorkInfo;
+  public  PeepLocalData              peepLocalData;
 
   public void addPeepPhoneNumber(PeepPhoneNumber phoneNumber) {
     if (peepPhoneNumbers == null) {
@@ -75,6 +29,14 @@ public class ContactDetailModel {
       peepEmails = new ArrayList<>();
     }
     peepEmails.add(email);
+  }
+
+  public void setPeepEmails(ArrayList<PeepEmail> peepEmails) {
+    this.peepEmails = peepEmails;
+  }
+
+  public void setPeepAddresses(ArrayList<PeepAddress> peepAddresses) {
+    this.peepAddresses = peepAddresses;
   }
 
   public void setPeepStructuredName(PeepStructuredName peepStructuredName) {
