@@ -181,14 +181,6 @@ public class ContactAccessor {
     return contactDetailModel;
   }
 
-  private String getDate(long time) {
-    Calendar c = Calendar.getInstance();
-    c.setTimeInMillis(time);
-    Date d = c.getTime();
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-    return sdf.format(d);
-  }
-
   private void handleDataForContactDetail(String mimeType, Cursor cursor, ContactDetailModel contactDetailModel) {
     switch (mimeType) {
       case CommonDataKinds.Phone.CONTENT_ITEM_TYPE: {

@@ -17,12 +17,12 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import org.thoughtcrime.securesms.InviteActivity;
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.TransportOptions;
+import org.thoughtcrime.securesms.contacts.ContactAccessor;
+import org.thoughtcrime.securesms.contacts.ContactsDatabase;
 import org.thoughtcrime.securesms.contactshare.Contact;
-import org.thoughtcrime.securesms.database.GroupDatabase;
-import org.thoughtcrime.securesms.database.MmsSmsDatabase;
+import org.thoughtcrime.securesms.database.RecipientDatabase;
 import org.thoughtcrime.securesms.database.SignalDatabase;
 import org.thoughtcrime.securesms.database.ThreadDatabase;
 import org.thoughtcrime.securesms.database.model.Mention;
@@ -42,10 +42,9 @@ import org.thoughtcrime.securesms.sms.MessageSender;
 import org.thoughtcrime.securesms.sms.OutgoingEncryptedMessage;
 import org.thoughtcrime.securesms.sms.OutgoingTextMessage;
 import org.thoughtcrime.securesms.util.MessageUtil;
-import org.thoughtcrime.securesms.util.concurrent.ListenableFuture;
 import org.thoughtcrime.securesms.util.concurrent.SettableFuture;
 import org.thoughtcrime.securesms.util.concurrent.SimpleTask;
-import org.whispersystems.libsignal.InvalidMessageException;
+import org.whispersystems.signalservice.api.storage.SignalContactRecord;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -111,12 +110,25 @@ public class PostCreationActivity extends AppCompatActivity {
     threadDatabase   = SignalDatabase.threads();
     Set<RecipientModel> threadRecipients = threadDatabase.getAllThreadRecipientsData();
 
-    Recipient                recipient;
+    Recipient recipient;
     postRecipients = new ArrayList();
 
     for(RecipientModel recipientModel : threadRecipients){
-      recipient  = Recipient.live(recipientModel.recipientId).get();
-      postRecipients.add(new PostRecipient(recipient.getDisplayNameOrUsername(getApplicationContext()), recipient, false));
+      recipient = Recipient.live(recipientModel.recipientId).get();
+      if(recipient.isGroup()) {
+        postRecipients.add(new PostRecipient(recipient.getDisplayNameOrUsername(getApplicationContext()), recipient, false));
+      }
+    }
+
+    RecipientDatabase recipientDatabase = SignalDatabase.recipients();
+    recipientDatabase.getRegistered();
+
+    for(RecipientId recipientId : recipientDatabase.getRegistered()){
+      recipient = Recipient.live(recipientId).get();
+
+      if(!recipient.isGroup() && !Recipient.self().getId().equals(recipientId)) {
+        postRecipients.add(new PostRecipient(recipient.getDisplayNameOrUsername(getApplicationContext()), recipient, false));
+      }
     }
 
     dataAdapter = new PostRecipientAdapter(this,
@@ -151,7 +163,6 @@ public class PostCreationActivity extends AppCompatActivity {
                                                   final @Nullable String metricId)
   {
     final boolean sendPush = true;
-    final long    thread   = threadDatabase.getThreadIdFor(recipientId);
 
     if (sendPush) {
       TransportOptions    transportOptions = new TransportOptions(this, false);
@@ -164,6 +175,7 @@ public class PostCreationActivity extends AppCompatActivity {
     }
 
     Recipient recipient = Recipient.live(recipientId).get();
+    final long thread   = threadDatabase.getOrCreateThreadIdFor(recipient);
 
     OutgoingMediaMessage outgoingMessageCandidate = new OutgoingMediaMessage(Recipient.resolved(recipientId), slideDeck, body, System.currentTimeMillis(), subscriptionId,
                                                                              expiresIn, viewOnce, recipient.isGroup() ? 1 : 2, quote, contacts, previews, mentions);
@@ -202,7 +214,6 @@ public class PostCreationActivity extends AppCompatActivity {
                                final int subscriptionId,
                                final @Nullable String metricId)
   {
-    final long    thread      = threadDatabase.getThreadIdFor(recipientId);
     final Context context     = getApplicationContext();
     final String  messageBody = body;
     final boolean sendPush    = true;
@@ -210,6 +221,8 @@ public class PostCreationActivity extends AppCompatActivity {
     OutgoingTextMessage message;
 
     LiveRecipient recipient = Recipient.live(recipientId);
+    final long    thread    = threadDatabase.getOrCreateThreadIdFor(recipient.get());
+
 
     if (sendPush) {
       message = new OutgoingEncryptedMessage(recipient.get(), messageBody, expiresIn);
