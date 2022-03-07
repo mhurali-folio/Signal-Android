@@ -29,7 +29,6 @@ import net.zetetic.database.sqlcipher.SQLiteQueryBuilder;
 
 import org.signal.core.util.logging.Log;
 import org.thoughtcrime.securesms.database.MessageDatabase.SyncMessageId;
-import org.thoughtcrime.securesms.database.MessageDatabase.ThreadUpdate;
 import org.thoughtcrime.securesms.database.model.MessageDataHolder;
 import org.thoughtcrime.securesms.database.MessageDatabase.MessageUpdate;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
